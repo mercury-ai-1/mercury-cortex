@@ -1,0 +1,31 @@
+[package]
+name = "mercury-cortex"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+mercury-cortex-core = { git = "https://github.com/mercury-ai-1/mercury-cortex-core.git", tag = "v0.1.0" }
+
+# CLI
+clap = { version = "4.6.4", features = ["derive", "env"] }
+dialoguer = "=0.12.0"
+
+# MCP
+rmcp = { version = "3.0.1", features = ["server", "transport-io", "transport-streamable-http-server", "macros", "schemars"] }
+schemars = { version = "1.2.2", features = ["derive"] }
+
+# Shared infrastructure (already in core but needed here for tokio features)
+tokio = { version = "1.53.1", features = ["macros", "rt-multi-thread", "sync", "net", "io-util", "signal"] }
+tracing = "=0.1.44"
+tracing-subscriber = { version = "0.3.19", features = ["env-filter", "json"] }
+anyhow = "1.0.104"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = { version = "1.0.151", features = ["preserve_order"] }
+uuid = { version = "1.24.0", features = ["v4"] }
+thiserror = "=2.0.19"
+libc = "0.2"
+
+[dev-dependencies]
+surrealdb = { version = "=3.2.3", features = ["kv-surrealkv"] }
+tempfile = "3.27.0"
+fs2 = "0.4.3"

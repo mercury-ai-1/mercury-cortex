@@ -1,0 +1,10 @@
+/target
+.opencode/
+graphify-out/
+
+.agent/
+AGENTS.md
+
+# db export output
+/projects.json
+/file_data.json
