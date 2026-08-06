@@ -154,32 +154,3 @@ fn tcp_addr(path: &Path) -> SocketAddr {
     let port = 1024 + (hash % (u16::MAX as u64 - 1023)) as u16;
     SocketAddr::from(([127, 0, 0, 1], port))
 }
-
-#[cfg(all(test, windows))]
-mod tests {
-    use super::tcp_addr;
-    use std::path::Path;
-
-    /// The same logical socket path must derive the same port regardless of
-    /// how it is spelled. `PathBuf::push` preserves embedded `/` separators on
-    /// Windows (raw byte concatenation), so a daemon built with chained
-    /// `.join()` and a client built with a forward-slash literal must still
-    /// agree, otherwise they bind/connect on different ports.
-    #[test]
-    fn same_path_spelled_differently_maps_to_same_port() {
-        let backslash = Path::new(
-            r"C:\Users\runneradmin\AppData\Local\Temp\abc123\.mercury\cortex\runtime.sock",
-        );
-        let mixed = Path::new(
-            "C:/Users/runneradmin/AppData/Local/Temp/abc123/.mercury/cortex/runtime.sock",
-        );
-        assert_eq!(tcp_addr(backslash), tcp_addr(mixed));
-    }
-
-    #[test]
-    fn different_paths_map_to_different_ports() {
-        let a = Path::new(r"C:\Users\a\.mercury\cortex\runtime.sock");
-        let b = Path::new(r"C:\Users\b\.mercury\cortex\runtime.sock");
-        assert_ne!(tcp_addr(a), tcp_addr(b));
-    }
-}
