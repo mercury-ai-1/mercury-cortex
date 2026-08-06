@@ -12,8 +12,8 @@ exclude = [".github/", "docs/", "graphify-out/", "tests/", "scripts/"]
 
 [dependencies]
 # Published on crates.io before v0.1.0 (core-first publishing, see docs/release-process.md).
-# 0.1.1: tokio::signal::unix imports gated so the crate compiles for Windows.
-mercury-cortex-core = "0.1.1"
+# 0.1.2: MERCURY_CORTEX_DATA_DIR override for hermetic cross-platform data dirs.
+mercury-cortex-core = "0.1.2"
 
 # CLI
 clap = { version = "4.6.4", features = ["derive", "env"] }

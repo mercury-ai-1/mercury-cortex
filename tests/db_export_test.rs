@@ -41,13 +41,15 @@ async fn seed(home: &Path) {
 fn run(home: &Path, args: &[&str]) -> std::process::Output {
     let mut cmd = Command::new(env!("CARGO_BIN_EXE_mercury-cortex"));
     cmd.args(args)
-        .env("HOME", home)
+        // `MERCURY_CORTEX_DATA_DIR` overrides the data dir on every platform
+        // (`dirs::home_dir()` ignores HOME/USERPROFILE on Windows), keeping the
+        // child binary hermetic without touching the real profile.
+        .env(
+            "MERCURY_CORTEX_DATA_DIR",
+            home.join(".mercury").join("cortex"),
+        )
         .stdout(std::process::Stdio::piped())
         .stderr(std::process::Stdio::piped());
-    // `dirs::home_dir()` reads USERPROFILE on Windows (not HOME), so point it
-    // at the same hermetic dir for cross-platform consistency.
-    #[cfg(windows)]
-    cmd.env("USERPROFILE", home);
     cmd.output().expect("binary should run")
 }
 

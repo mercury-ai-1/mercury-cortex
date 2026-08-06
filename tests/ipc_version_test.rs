@@ -87,12 +87,16 @@ async fn spawn_daemon(home: &std::path::Path) -> (std::process::Child, String) {
     let bin = env!("CARGO_BIN_EXE_mercury-cortex");
     let mut cmd = Command::new(bin);
     cmd.args(["daemon"])
-        .env("HOME", home)
+        // `MERCURY_CORTEX_DATA_DIR` overrides the data dir on every platform
+        // (`dirs::home_dir()` ignores HOME/USERPROFILE on Windows), so the
+        // daemon binds the socket under the hermetic temp home.
+        .env(
+            "MERCURY_CORTEX_DATA_DIR",
+            home.join(".mercury").join("cortex"),
+        )
         .stdin(Stdio::null())
         .stdout(Stdio::null())
         .stderr(Stdio::null());
-    #[cfg(windows)]
-    cmd.env("USERPROFILE", home);
     let child = cmd.spawn().expect("spawn mercury-cortex daemon");
 
     let socket = home.join(".mercury/cortex/runtime.sock");
@@ -105,11 +109,6 @@ async fn spawn_daemon(home: &std::path::Path) -> (std::process::Child, String) {
 async fn server_rejects_unsupported_protocol_version() -> anyhow::Result<()> {
     let tmp = tempfile::TempDir::new()?;
     let home = tmp.path();
-    unsafe { std::env::set_var("HOME", home) };
-    #[cfg(windows)]
-    unsafe {
-        std::env::set_var("USERPROFILE", home)
-    };
 
     let (child, endpoint) = spawn_daemon(home).await;
     let _child = ChildGuard(Some(child));
@@ -138,11 +137,6 @@ async fn server_rejects_unsupported_protocol_version() -> anyhow::Result<()> {
 #[tokio::test]
 async fn server_accepts_current_protocol_version() -> anyhow::Result<()> {
     let home = tempfile::TempDir::new()?.path().to_path_buf();
-    unsafe { std::env::set_var("HOME", &home) };
-    #[cfg(windows)]
-    unsafe {
-        std::env::set_var("USERPROFILE", &home)
-    };
 
     let (child, endpoint) = spawn_daemon(&home).await;
     let _child = ChildGuard(Some(child));

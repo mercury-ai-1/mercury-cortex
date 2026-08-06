@@ -2460,9 +2460,9 @@ dependencies = [
 
 [[package]]
 name = "mercury-cortex-core"
-version = "0.1.1"
+version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "71aa99badbf4be65786cfb41ec37bbe905d15e6ad5878a488ef08d0beeedee39"
+checksum = "302935dd2e4eeb7f2afdeb38b3099d2a224154111cc0c40ca9c032c453577bae"
 dependencies = [
  "anyhow",
  "async-trait",

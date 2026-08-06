@@ -3,11 +3,14 @@ use std::process::Command;
 fn run(args: &[&str]) -> std::process::Output {
     let home = tempfile::tempdir().unwrap();
     let mut cmd = Command::new(env!("CARGO_BIN_EXE_mercury-cortex"));
-    cmd.args(args).env("HOME", home.path());
-    // `dirs::home_dir()` reads USERPROFILE on Windows (not HOME), so point it
-    // at the same hermetic dir for cross-platform consistency.
-    #[cfg(windows)]
-    cmd.env("USERPROFILE", home.path());
+    cmd.args(args)
+        // `MERCURY_CORTEX_DATA_DIR` overrides the data dir on every platform
+        // (`dirs::home_dir()` ignores HOME/USERPROFILE on Windows), keeping the
+        // child binary hermetic without touching the real profile.
+        .env(
+            "MERCURY_CORTEX_DATA_DIR",
+            home.path().join(".mercury").join("cortex"),
+        );
     cmd.output().expect("binary should run")
 }
 
