@@ -1,0 +1,26 @@
+# cargo-audit configuration.
+#
+# Each ignore below is for a finding that is transitive through the
+# `surrealdb` DEV-dependency only (pulled in for integration tests via the
+# `kv-surrealkv` feature). It is not part of the published crate's dependency
+# tree, so the advisory does not affect any shipped artifact.
+#
+# The `audit` CI job is intentionally non-blocking (continue-on-error) so a
+# new advisory in the dev tree cannot silently block the pipeline; these
+# ignores document the ones we have deliberately accepted.
+
+[advisories]
+# rkyv 0.7.46 — "Insufficient archive validation can cause out-of-bounds reads
+# in archives containing Rc/Arc" (RUSTSEC-2026-0235, fix >=0.8.17).
+# Via surrealdb -> rust_decimal. surrealdb 3.2.3 pins rkyv 0.7.x; upgrading is
+# not possible while surrealdb is a dependency. Dev-dep only, never packaged.
+ignore = [
+    "RUSTSEC-2026-0235",
+    # rsa 0.9.10 — "Marvin Attack: potential key recovery through timing
+    # sidechannels" (RUSTSEC-2023-0071). No fixed upgrade is available. Via
+    # surrealdb -> jsonwebtoken. Dev-dep only, never packaged.
+    "RUSTSEC-2023-0071",
+    # atomic-polyfill 1.0.3 — "unmaintained" (RUSTSEC-2023-0089). Via
+    # surrealdb -> heapless. Dev-dep only, never packaged.
+    "RUSTSEC-2023-0089",
+]
