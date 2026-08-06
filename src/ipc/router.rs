@@ -96,6 +96,7 @@ fn runtime_diagnostics(ctx: &RuntimeContext) -> Result<Value, ServiceError> {
         "config": {
             "data_dir": ctx.config.data_dir.to_string_lossy(),
             "socket_path": ctx.config.socket_path.to_string_lossy(),
+            "endpoint": super::net::Endpoint::from_socket_path(&ctx.config.socket_path).display(),
         },
         "startup_trace": trace,
     }))

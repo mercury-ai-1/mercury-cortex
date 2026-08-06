@@ -6,6 +6,7 @@ use mercury_cortex_core::runtime::RuntimeConfig;
 use mercury_cortex_core::service::profile::{ProfileData, UpsertParams};
 use mercury_cortex_core::service::project::{RegisterParams, RegisterResult};
 
+use super::net::Endpoint;
 use super::transport::{ConnectionPool, get_connection, get_fresh_connection, return_connection};
 
 /// Error returned by [`RuntimeClient`] operations.
@@ -35,8 +36,8 @@ impl std::fmt::Display for ClientError {
 
 impl std::error::Error for ClientError {}
 
-/// Client for communicating with a running Mercury Cortex runtime over a
-/// Unix domain socket.
+/// Client for communicating with a running Mercury Cortex runtime over the
+/// platform IPC endpoint (Unix socket or TCP loopback).
 ///
 /// Uses a [`ConnectionPool`] internally to reuse connections and limit
 /// concurrency.
@@ -45,16 +46,16 @@ pub(crate) struct RuntimeClient {
 }
 
 impl RuntimeClient {
-    /// Probe the runtime socket. Returns `None` if no runtime is running.
+    /// Probe the runtime endpoint. Returns `None` if no runtime is running.
     pub async fn try_connect() -> Option<Self> {
         let config = RuntimeConfig::new().ok()?;
-        let path = &config.socket_path;
+        let endpoint = Endpoint::from_socket_path(&config.socket_path);
 
-        if !path.exists() {
+        if !endpoint.probe() {
             return None;
         }
 
-        let pool = Arc::new(ConnectionPool::new(path.clone()));
+        let pool = Arc::new(ConnectionPool::new(endpoint));
 
         // Ping the runtime to confirm it's alive
         let (conn, result) = {

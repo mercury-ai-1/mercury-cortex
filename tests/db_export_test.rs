@@ -39,11 +39,16 @@ async fn seed(home: &Path) {
 }
 
 fn run(home: &Path, args: &[&str]) -> std::process::Output {
-    Command::new(env!("CARGO_BIN_EXE_mercury-cortex"))
-        .args(args)
+    let mut cmd = Command::new(env!("CARGO_BIN_EXE_mercury-cortex"));
+    cmd.args(args)
         .env("HOME", home)
-        .output()
-        .expect("binary should run")
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped());
+    // `dirs::home_dir()` reads USERPROFILE on Windows (not HOME), so point it
+    // at the same hermetic dir for cross-platform consistency.
+    #[cfg(windows)]
+    cmd.env("USERPROFILE", home);
+    cmd.output().expect("binary should run")
 }
 
 #[tokio::test]

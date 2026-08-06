@@ -1,11 +1,14 @@
 use std::process::Command;
 
 fn run(args: &[&str]) -> std::process::Output {
-    Command::new(env!("CARGO_BIN_EXE_mercury-cortex"))
-        .args(args)
-        .env("HOME", tempfile::tempdir().unwrap().path())
-        .output()
-        .expect("binary should run")
+    let home = tempfile::tempdir().unwrap();
+    let mut cmd = Command::new(env!("CARGO_BIN_EXE_mercury-cortex"));
+    cmd.args(args).env("HOME", home.path());
+    // `dirs::home_dir()` reads USERPROFILE on Windows (not HOME), so point it
+    // at the same hermetic dir for cross-platform consistency.
+    #[cfg(windows)]
+    cmd.env("USERPROFILE", home.path());
+    cmd.output().expect("binary should run")
 }
 
 #[test]

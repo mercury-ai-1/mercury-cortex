@@ -1,3 +1,12 @@
+#![cfg(unix)]
+
+//! Graceful-shutdown semantics tests.
+//!
+//! These assert SIGTERM-based graceful stop, PID-file cleanup on Drop, and a
+//! clean (success) exit — all of which are unix-only. Windows termination is a
+//! hard `TerminateProcess` with no graceful shutdown analogue, so the guarded
+//! assertions cannot hold there.
+
 use std::io::Read;
 use std::process::{Child, Command, Stdio};
 use std::time::{Duration, Instant};

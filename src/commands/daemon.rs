@@ -42,8 +42,8 @@ pub enum DaemonCommand {
 /// Start the Mercury Cortex daemon.
 ///
 /// Creates a single Runtime (owning the database and knowledge engine), then
-/// starts the IPC server on the configured Unix socket.  The daemon runs
-/// until it receives a shutdown signal (SIGINT, SIGTERM, or SIGHUP).
+/// starts the IPC server on the configured platform endpoint (Unix socket or
+/// TCP loopback).  The daemon runs until it receives a shutdown signal.
 pub async fn run(args: DaemonArgs, command: Option<DaemonCommand>) -> Result<(), anyhow::Error> {
     match command {
         Some(DaemonCommand::Serve) | None => run_serve(args).await,
@@ -94,7 +94,10 @@ async fn run_serve(args: DaemonArgs) -> Result<(), anyhow::Error> {
 
     eprintln!();
     eprintln!("Mercury Cortex Daemon");
-    eprintln!("  Socket: {}", rt.ctx.config.socket_path.display());
+    eprintln!(
+        "  Socket: {}",
+        ipc::net::Endpoint::from_socket_path(&rt.ctx.config.socket_path).display()
+    );
     eprintln!();
 
     // Wait for a termination signal. The runtime installs its own

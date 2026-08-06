@@ -1,11 +1,19 @@
-use std::path::PathBuf;
-use std::time::Duration;
-
 use serde_json::json;
+
+#[cfg(unix)]
+use std::path::PathBuf;
+#[cfg(unix)]
+use std::time::Duration;
+#[cfg(unix)]
 use tempfile::TempDir;
+
+#[cfg(unix)]
 use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt, BufReader};
+#[cfg(unix)]
 use tokio::net::UnixListener;
+#[cfg(unix)]
 use tokio::net::UnixStream;
+#[cfg(unix)]
 use tokio::time::timeout;
 
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -38,6 +46,7 @@ struct TestIpcError {
     recovery: Option<String>,
 }
 
+#[cfg(unix)]
 fn test_socket_path(tmp: &TempDir) -> PathBuf {
     tmp.path().join("test.sock")
 }
@@ -170,6 +179,7 @@ async fn test_protocol_failure_recovery_defaults_to_none() {
     assert!(parsed.error.recovery.is_none());
 }
 
+#[cfg(unix)]
 async fn run_echo_server(socket_path: &std::path::Path) -> tokio::task::JoinHandle<()> {
     let socket = socket_path.to_path_buf();
     tokio::spawn(async move {
@@ -195,6 +205,7 @@ async fn run_echo_server(socket_path: &std::path::Path) -> tokio::task::JoinHand
     })
 }
 
+#[cfg(unix)]
 #[tokio::test]
 async fn test_request_response_over_unix_socket() {
     let tmp = TempDir::new().unwrap();
@@ -225,6 +236,7 @@ async fn test_request_response_over_unix_socket() {
     server_handle.await.unwrap();
 }
 
+#[cfg(unix)]
 #[tokio::test]
 async fn test_request_with_params_response() {
     let tmp = TempDir::new().unwrap();
@@ -278,6 +290,7 @@ async fn test_request_with_params_response() {
     server_handle.await.unwrap();
 }
 
+#[cfg(unix)]
 #[tokio::test]
 async fn test_server_returns_failure() {
     let tmp = TempDir::new().unwrap();
@@ -335,6 +348,7 @@ async fn test_server_returns_failure() {
     server_handle.await.unwrap();
 }
 
+#[cfg(unix)]
 #[tokio::test]
 async fn test_connection_refused() {
     let result = timeout(
@@ -349,6 +363,7 @@ async fn test_connection_refused() {
     }
 }
 
+#[cfg(unix)]
 #[tokio::test]
 async fn test_connection_to_closed_socket() {
     let tmp = TempDir::new().unwrap();
@@ -361,6 +376,7 @@ async fn test_connection_to_closed_socket() {
     assert!(result.is_err());
 }
 
+#[cfg(unix)]
 #[tokio::test]
 async fn test_multiple_requests_on_same_connection() {
     let tmp = TempDir::new().unwrap();
@@ -420,6 +436,7 @@ async fn test_multiple_requests_on_same_connection() {
     server_handle.await.unwrap();
 }
 
+#[cfg(unix)]
 #[tokio::test]
 async fn test_invalid_json_returns_error() {
     let tmp = TempDir::new().unwrap();

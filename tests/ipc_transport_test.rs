@@ -1,3 +1,11 @@
+#![cfg(unix)]
+
+//! Transport-level framing tests over the raw Unix socket.
+//!
+//! On Windows the crate's IPC transport is TCP loopback, so this raw socket
+//! framing is exercised there end-to-end via `ipc_version_test.rs` (which
+//! spawns the real daemon over whichever transport the platform uses).
+
 use std::path::PathBuf;
 use std::time::Duration;
 

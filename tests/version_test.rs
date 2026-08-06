@@ -30,8 +30,13 @@ fn test_current_exe_is_valid() {
 fn test_data_dir_resolves() -> anyhow::Result<()> {
     let dir = mercury_cortex_core::db::data_dir()?;
     assert!(
-        dir.to_string_lossy().contains(".mercury/cortex"),
-        "data dir should contain .mercury/context"
+        dir.to_string_lossy().contains(".mercury"),
+        "data dir should live under the home .mercury dir"
+    );
+    assert_eq!(
+        dir.file_name().map(|n| n.to_string_lossy().into_owned()),
+        Some("cortex".into()),
+        "data dir should end in the cortex component"
     );
     Ok(())
 }

@@ -1,4 +1,4 @@
-//! Connection pool for IPC Unix socket connections.
+//! Connection pool for IPC connections (Unix socket or TCP loopback).
 //!
 //! Provides a [`ConnectionPool`] that limits concurrent connections via a
 //! [`tokio::sync::Semaphore`] and reuses idle connections through an
@@ -6,40 +6,39 @@
 //! [`get_connection`] and return it via [`return_connection`].
 
 use std::collections::VecDeque;
-use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use serde_json::Value;
 use std::time::Duration;
 
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
-use tokio::net::UnixStream;
 use tokio::sync::{Mutex, OwnedSemaphorePermit, Semaphore};
 use tokio::time::timeout;
 
 use super::client::ClientError;
+use super::net::{self, Endpoint, IpcStream};
 use super::protocol::{
     CODE_INVALID_VERSION, IpcFailure, IpcRequest, IpcSuccess, PROTOCOL_VERSION, validate_version,
 };
 
-/// An individual IPC connection wrapping a buffered Unix stream.
+/// An individual IPC connection wrapping a buffered, platform-agnostic stream.
 pub(crate) struct IpcConnection {
-    reader: BufReader<UnixStream>,
+    reader: BufReader<IpcStream>,
     /// True when this connection was popped from the idle pool rather than
     /// freshly opened; used to decide stale-connection retry.
     reused: bool,
 }
 
-/// Timeout for connecting to the IPC socket.
+/// Timeout for connecting to the IPC endpoint.
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(5);
-/// Timeout for writing a request to the IPC socket.
+/// Timeout for writing a request to the IPC endpoint.
 const WRITE_TIMEOUT: Duration = Duration::from_secs(5);
-/// Timeout for reading a response from the IPC socket.
+/// Timeout for reading a response from the IPC endpoint.
 const READ_TIMEOUT: Duration = Duration::from_secs(10);
 
 impl IpcConnection {
-    pub async fn new(path: &Path) -> Result<Self, ClientError> {
-        let stream = timeout(CONNECT_TIMEOUT, UnixStream::connect(path))
+    pub async fn new(endpoint: &Endpoint) -> Result<Self, ClientError> {
+        let stream = timeout(CONNECT_TIMEOUT, net::connect(endpoint))
             .await
             .map_err(|_| ClientError::ConnectionFailed("connect timed out".into()))?
             .map_err(|e| ClientError::ConnectionFailed(e.to_string()))?;
@@ -121,24 +120,24 @@ impl IpcConnection {
 
 /// A pool of reusable [`IpcConnection`]s with a maximum concurrency limit.
 pub(crate) struct ConnectionPool {
-    socket_path: PathBuf,
+    endpoint: Endpoint,
     connections: Arc<Mutex<VecDeque<IpcConnection>>>,
     semaphore: Arc<Semaphore>,
 }
 
 impl ConnectionPool {
-    /// Create a new pool for the given `socket_path` with a maximum of 10
+    /// Create a new pool for the given `endpoint` with a maximum of 10
     /// concurrent connections.
-    pub fn new(socket_path: PathBuf) -> Self {
+    pub fn new(endpoint: Endpoint) -> Self {
         Self {
-            socket_path,
+            endpoint,
             connections: Arc::new(Mutex::new(VecDeque::new())),
             semaphore: Arc::new(Semaphore::new(10)),
         }
     }
 
-    fn socket_path(&self) -> &Path {
-        &self.socket_path
+    fn endpoint(&self) -> &Endpoint {
+        &self.endpoint
     }
 
     fn semaphore(&self) -> &Arc<Semaphore> {
@@ -182,7 +181,7 @@ pub(crate) async fn get_connection(pool: &ConnectionPool) -> Result<PooledConnec
             c.reused = true;
             c
         }
-        None => IpcConnection::new(pool.socket_path()).await?,
+        None => IpcConnection::new(pool.endpoint()).await?,
     };
 
     Ok(PooledConnection { conn, permit })
@@ -199,7 +198,7 @@ pub(crate) async fn get_fresh_connection(
         .acquire_owned()
         .await
         .map_err(|e| ClientError::ConnectionFailed(e.to_string()))?;
-    let conn = IpcConnection::new(pool.socket_path()).await?;
+    let conn = IpcConnection::new(pool.endpoint()).await?;
     Ok(PooledConnection { conn, permit })
 }
 

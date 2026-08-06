@@ -1,15 +1,15 @@
 use std::sync::Arc;
 
-use tokio::net::UnixListener;
-
 use mercury_cortex_core::runtime::RuntimeContext;
 
+use super::net::{self, IpcStream};
 use super::protocol::{
     CODE_INVALID_VERSION, IpcFailure, IpcRequest, IpcSuccess, PROTOCOL_VERSION, validate_version,
 };
 use super::router;
 
-/// Start the IPC server on the configured Unix socket.
+/// Start the IPC server on the configured endpoint (Unix socket or TCP
+/// loopback).
 ///
 /// Returns a `JoinHandle` that lives for the duration of the runtime. The
 /// runtime stores this handle so the server is cancelled on drop.
@@ -17,17 +17,15 @@ pub(crate) async fn start(
     ctx: Arc<RuntimeContext>,
 ) -> Result<tokio::task::JoinHandle<()>, anyhow::Error> {
     let socket_path = &ctx.config.socket_path;
+    let endpoint = net::Endpoint::from_socket_path(socket_path);
 
-    // Clean up any stale socket from a previous unclean shutdown.
-    let _ = tokio::fs::remove_file(socket_path).await;
+    let listener = net::bind(&endpoint).await?;
 
-    let listener = UnixListener::bind(socket_path)?;
-
-    tracing::info!(path = %socket_path.display(), "IPC server listening");
+    tracing::info!(endpoint = %endpoint.display(), "IPC server listening");
 
     let handle = tokio::spawn(async move {
         loop {
-            let (stream, _addr) = match listener.accept().await {
+            let stream = match listener.accept().await {
                 Ok(conn) => conn,
                 Err(e) => {
                     tracing::error!(error = %e, "IPC accept error");
@@ -48,7 +46,7 @@ pub(crate) async fn start(
 /// Timeout for reading a request on the IPC server.
 const READ_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(30);
 
-async fn handle_connection(stream: tokio::net::UnixStream, ctx: &RuntimeContext) {
+async fn handle_connection(stream: IpcStream, ctx: &RuntimeContext) {
     use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
     use tokio::time::timeout;
 

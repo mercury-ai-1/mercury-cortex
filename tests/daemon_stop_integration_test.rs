@@ -1,3 +1,10 @@
+#![cfg(unix)]
+
+//! Graceful `daemon stop` semantics: SIGTERM-based stop, PID-file removal on
+//! Drop, and a clean (success) exit. Windows termination is a hard
+//! `TerminateProcess` with no graceful analogue, so these assertions are
+//! unix-only.
+
 use std::io::Read;
 use std::process::{Command, Stdio};
 use std::time::{Duration, Instant};
