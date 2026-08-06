@@ -1,0 +1,88 @@
+# installer-test.yml — Verify the installers against a *released* binary.
+#
+# Triggered by workflow_run on build.yml completion. Because release.yml runs
+# inside build.yml (as its final job), build.yml only completes AFTER the
+# GitHub Release exists — so this workflow always tests released binaries,
+# never unreleased builds.
+#
+# The installers resolve "latest" from GitHub Releases by default; we pin the
+# version to the exact tag that triggered the build for determinism.
+#
+# All actions are pinned to full commit SHAs (see # <owner>/<repo>@<tag>).
+
+name: installer-test
+
+on:
+  workflow_run:
+    workflows: [build]
+    types: [completed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: installer-test-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: false
+
+jobs:
+  linux:
+    name: linux install.sh
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Install via install.sh
+        run: |
+          set -euo pipefail
+          curl -fsSL \
+            "https://raw.githubusercontent.com/${{ github.repository }}/main/scripts/install.sh" \
+            -o /tmp/install.sh
+          chmod +x /tmp/install.sh
+          VERSION=${{ github.event.workflow_run.head_branch }} /tmp/install.sh
+      - name: Verify binary and version
+        run: |
+          set -euo pipefail
+          command -v mercury-cortex
+          mercury-cortex --version
+
+  macos:
+    name: macOS install.sh
+    runs-on: macos-15-intel
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Install via install.sh
+        run: |
+          set -euo pipefail
+          curl -fsSL \
+            "https://raw.githubusercontent.com/${{ github.repository }}/main/scripts/install.sh" \
+            -o /tmp/install.sh
+          chmod +x /tmp/install.sh
+          VERSION=${{ github.event.workflow_run.head_branch }} /tmp/install.sh
+      - name: Verify binary and version
+        run: |
+          set -euo pipefail
+          command -v mercury-cortex
+          mercury-cortex --version
+
+  windows:
+    name: windows install.ps1
+    runs-on: windows-latest
+    # Non-blocking: see build.yml note — src/svc/ is unix-only, so there may
+    # be no Windows artifact yet. Kept for visibility until the crate compiles
+    # for x86_64-pc-windows-msvc.
+    continue-on-error: true
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Install via install.ps1
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $url = "https://raw.githubusercontent.com/${{ github.repository }}/main/scripts/install.ps1"
+          $script = (New-Object System.Net.WebClient).DownloadString($url)
+          & ([scriptblock]::Create($script)) -Version ${{ github.event.workflow_run.head_branch }}
+      - name: Verify binary and version
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $exe = Join-Path $env:LOCALAPPDATA "Programs\mercury-cortex-bin\mercury-cortex.exe"
+          if (-not (Test-Path $exe)) { throw "mercury-cortex.exe not found at $exe" }
+          & $exe --version

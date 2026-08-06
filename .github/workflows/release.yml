@@ -1,0 +1,161 @@
+# release.yml — Create the GitHub Release and publish `mercury-cortex` to crates.io.
+#
+# Called ONLY by build.yml (workflow_call). Cannot be triggered by PRs or by
+# tag pushes directly. Runs inside the build workflow's run, so it can
+# download the artifacts build.yml uploaded.
+#
+# Sequence:
+#   1. create GitHub Release + upload all archives + consolidated checksums
+#   2. publish mercury-cortex to crates.io (idempotent)
+#
+# `mercury-cortex-core` is published by its own repository and workflow; this
+# workflow never touches the core crate or its repository.
+#
+# crates.io publishing happens ONLY after the GitHub Release succeeds.
+#
+# All actions are pinned to full commit SHAs (see # <owner>/<repo>@<tag>).
+
+name: release
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: "Release tag, e.g. v0.1.0"
+        required: true
+        type: string
+    secrets:
+      CARGO_REGISTRY_TOKEN:
+        required: true
+
+permissions:
+  # Least privilege: only the create-release job needs GitHub write access
+  # (to create the release and upload assets), granted per-job below. The
+  # crates.io publish step uses CARGO_REGISTRY_TOKEN and needs no GitHub
+  # permissions, so the publish job runs with the workflow default (read).
+  contents: read
+
+concurrency:
+  # A second run for the same tag must never race the first.
+  group: release-${{ inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  create-release:
+    name: create github release
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # actions/checkout@v5
+
+      # Download every archive produced by build.yml into artifacts/.
+      # if-no-files-found=warn keeps a (currently non-blocking) missing
+      # Windows artifact from failing the release.
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: "*"
+          merge-multiple: true
+          if-no-files-found: error
+
+      - name: Generate checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          ls -la artifacts/
+          cd artifacts
+          sha256sum ./* > checksums.txt
+          cat checksums.txt
+
+      - name: Check for existing release
+        id: existing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if gh release view "${{ inputs.version }}" >/dev/null 2>&1; then
+            echo "existing=true" >> "$GITHUB_OUTPUT"
+            echo "Release ${{ inputs.version }} already exists; skipping creation."
+          else
+            echo "existing=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create GitHub Release and upload assets
+        if: steps.existing.outputs.existing == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          cd artifacts
+          gh release create "${{ inputs.version }}" \
+            --title "${{ inputs.version }}" \
+            --generate-notes \
+            --repo "${{ github.repository }}" \
+            ./*
+
+      - name: Ensure checksums uploaded (release already existed)
+        if: steps.existing.outputs.existing == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          cd artifacts
+          gh release upload "${{ inputs.version }}" --repo "${{ github.repository }}" ./* --clobber || true
+
+  publish:
+    name: publish mercury-cortex
+    runs-on: ubuntu-latest
+    environment: release
+    needs: create-release
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # actions/checkout@v5
+
+      - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # dtolnay/rust-toolchain@stable
+
+      # Gate: never publish a crate whose version does not match the tag.
+      - name: Verify Cargo.toml version matches the release tag
+        id: verify
+        shell: bash
+        run: |
+          set -euo pipefail
+          CRATE_VERSION="$(cargo metadata --format-version 1 --no-deps | grep -o '"version":"[^"]*"' | head -n1 | cut -d'"' -f4)"
+          TAG_VERSION="${VERSION#v}"
+          if [ "$CRATE_VERSION" != "$TAG_VERSION" ]; then
+            echo "::error::Cargo.toml version ($CRATE_VERSION) does not match tag $VERSION"
+            exit 1
+          fi
+        env:
+          VERSION: ${{ inputs.version }}
+
+      # Validate the package assembles cleanly (local path deps get real
+      # versions in the packaged manifest) BEFORE any crates.io interaction.
+      - name: Package crate (verify manifest + build)
+        shell: bash
+        run: cargo package --locked
+
+      # Idempotent: skip if this exact version is already on crates.io.
+      - name: Check if already published
+        id: published
+        run: |
+          set -euo pipefail
+          BARE="${VERSION#v}"
+          if cargo search mercury-cortex --limit 1 2>/dev/null | grep -q "= \"${BARE}\""; then
+            echo "published=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "published=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          VERSION: ${{ inputs.version }}
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+      - name: Publish to crates.io
+        if: steps.published.outputs.published == 'false'
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          set -euo pipefail
+          # --locked: refuse to publish if Cargo.lock would need changes, so
+          # the published artifact matches a verified dependency tree.
+          cargo publish --locked

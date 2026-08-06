@@ -2,9 +2,17 @@
 name = "mercury-cortex"
 version = "0.1.0"
 edition = "2024"
+description = "Mercury Cortex — AI code-indexing CLI and MCP server"
+license = "Apache-2.0"
+repository = "https://github.com/mercury-ai-1/mercury-cortex"
+readme = "README.md"
+keywords = ["ai", "indexing", "mcp", "code-search", "cli"]
+categories = ["command-line-utilities", "developer-tools"]
+exclude = [".github/", "docs/", "graphify-out/", "tests/", "scripts/"]
 
 [dependencies]
-mercury-cortex-core = { git = "https://github.com/mercury-ai-1/mercury-cortex-core.git", tag = "v0.1.0" }
+# Published on crates.io before v0.1.0 (core-first publishing, see docs/release-process.md).
+mercury-cortex-core = "0.1.0"
 
 # CLI
 clap = { version = "4.6.4", features = ["derive", "env"] }
@@ -29,3 +37,9 @@ libc = "0.2"
 surrealdb = { version = "=3.2.3", features = ["kv-surrealkv"] }
 tempfile = "3.27.0"
 fs2 = "0.4.3"
+
+# Release binaries: optimized, smaller, dependency-tree stripped.
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = "symbols"

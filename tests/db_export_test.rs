@@ -109,8 +109,14 @@ async fn project_id_filter_via_flag() {
     let output = run(
         home.path(),
         &[
-            "db", "export", "--table", "file_data", "--project-id",
-            "projects:p1", "--out", out_str,
+            "db",
+            "export",
+            "--table",
+            "file_data",
+            "--project-id",
+            "projects:p1",
+            "--out",
+            out_str,
         ],
     );
     assert_eq!(
@@ -138,7 +144,10 @@ async fn unknown_table_fails_nonzero() {
 #[test]
 fn all_and_table_flags_conflict() {
     let home = TempDir::new().unwrap();
-    let output = run(home.path(), &["db", "export", "--table", "projects", "--all"]);
+    let output = run(
+        home.path(),
+        &["db", "export", "--table", "projects", "--all"],
+    );
     assert_ne!(output.status.code(), Some(0));
 }
 
@@ -148,8 +157,5 @@ fn export_without_db_fails_gracefully() {
     let output = run(home.path(), &["db", "export", "--table", "projects"]);
     assert_eq!(output.status.code(), Some(1));
     let stderr = String::from_utf8_lossy(&output.stderr);
-    assert!(
-        stderr.contains("No database found"),
-        "stderr: {stderr}"
-    );
+    assert!(stderr.contains("No database found"), "stderr: {stderr}");
 }

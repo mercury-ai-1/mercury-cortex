@@ -2450,7 +2450,8 @@ dependencies = [
 [[package]]
 name = "mercury-cortex-core"
 version = "0.1.0"
-source = "git+https://github.com/mercury-ai-1/mercury-cortex-core.git?tag=v0.1.0#ccdd876f982e262ccc33ce1ce488c24c26cfabdc"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "df0e878201f233b6a108919388eceea435d3b3d31a617babfac4a29ba50bfece"
 dependencies = [
  "anyhow",
  "async-trait",

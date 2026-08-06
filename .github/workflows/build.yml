@@ -1,0 +1,160 @@
+# build.yml — Build release binaries for all supported targets, triggered by
+# version tags (v*). Produces archives + SLSA attestations, uploads them as
+# workflow artifacts, then calls release.yml to create the GitHub Release and
+# publish to crates.io.
+#
+# All actions are pinned to full commit SHAs (see # <owner>/<repo>@<tag>).
+
+name: build
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Tag to build (e.g. v0.1.0). Required for manual runs."
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write # for attest-build-provenance
+  attestations: write # for attest-build-provenance
+
+concurrency:
+  # Never cancel an in-flight release build.
+  group: build-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  # Tag pushes use the tag name; manual runs use the version input.
+  VERSION: ${{ github.ref_type == 'tag' && github.ref_name || inputs.version }}
+  BINARY: mercury-cortex
+
+jobs:
+  build:
+    name: build ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    # The Windows target is currently non-blocking: src/svc/ is unix-only, so
+    # the crate does not compile for x86_64-pc-windows-msvc yet. Enabled for
+    # visibility; ignored in results until the Rust source is ported.
+    continue-on-error: ${{ matrix.continue_on_error }}
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            use_cross: false
+            continue_on_error: false
+          - target: aarch64-unknown-linux-gnu
+            os: ubuntu-latest
+            use_cross: true
+            continue_on_error: false
+          - target: x86_64-apple-darwin
+            os: macos-15-intel
+            use_cross: false
+            continue_on_error: false
+          - target: aarch64-apple-darwin
+            os: macos-14
+            use_cross: false
+            continue_on_error: false
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            use_cross: false
+            continue_on_error: true
+    env:
+      TARGET: ${{ matrix.target }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # actions/checkout@v5
+
+      - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # Swatinem/rust-cache@v2
+        with:
+          key: build-${{ matrix.target }}
+
+      - name: Install cross
+        if: matrix.use_cross
+        uses: taiki-e/install-action@cb33e69fad06166ca28a42b2575e4dadabf62ee8 # taiki-e/install-action@v2
+        with:
+          tool: cross
+
+      # cargo-auditable embeds dependency/version metadata into the binary for
+      # downstream vulnerability scanning. Non-blocking by design: if it fails
+      # we fall back to a plain release build (never blocks a release).
+      - name: Install cargo-auditable
+        if: ${{ !matrix.use_cross }}
+        continue-on-error: true
+        uses: taiki-e/install-action@cb33e69fad06166ca28a42b2575e4dadabf62ee8 # taiki-e/install-action@v2
+        with:
+          tool: cargo-auditable
+
+      - name: Build release binary
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ matrix.use_cross }}" == "true" ]; then
+            cross build --release --target "$TARGET"
+          elif command -v cargo-auditable >/dev/null 2>&1; then
+            if cargo auditable build --release --target "$TARGET"; then
+              echo "built with embedded auditable metadata"
+            else
+              echo "::warning::cargo auditable build failed; falling back to plain release build"
+              cargo build --release --target "$TARGET"
+            fi
+          else
+            cargo build --release --target "$TARGET"
+          fi
+
+      - name: Package archive (Unix)
+        if: ${{ runner.os != 'Windows' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          tar -czf "dist/${BINARY}-${VERSION}-${TARGET}.tar.gz" \
+            -C "target/$TARGET/release" "$BINARY"
+          ls -la dist/
+
+      - name: Package archive (Windows)
+        if: ${{ runner.os == 'Windows' }}
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Path "dist" -Force | Out-Null
+          Compress-Archive -Force \
+            -Path "target/$env:TARGET/release/$env:BINARY.exe" \
+            -DestinationPath "dist/$env:BINARY-$env:VERSION-$env:TARGET.zip"
+          Get-ChildItem dist
+        env:
+          BINARY: ${{ env.BINARY }}
+          VERSION: ${{ env.VERSION }}
+          TARGET: ${{ matrix.target }}
+
+      - name: Attest build provenance
+        if: ${{ success() }}
+        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # actions/attest-build-provenance@v2
+        with:
+          subject-path: dist/*
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: dist/
+          if-no-files-found: error
+
+  # Last job: only after every build leg succeeded. Calls the reusable
+  # release workflow inside this run, so the build run does NOT complete until
+  # the GitHub Release + crates.io publish have finished.
+  release:
+    name: release
+    needs: build
+    uses: ./.github/workflows/release.yml
+    with:
+      version: ${{ github.ref_type == 'tag' && github.ref_name || inputs.version }}
+    secrets: inherit

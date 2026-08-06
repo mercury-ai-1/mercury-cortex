@@ -1,10 +1,7 @@
 /target
 .opencode/
 graphify-out/
+superpowers/
 
-.agent/
+.DS_Store
 AGENTS.md
-
-# db export output
-/projects.json
-/file_data.json

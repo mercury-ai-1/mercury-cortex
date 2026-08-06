@@ -4,8 +4,8 @@
 //! formats and prints results. `reset` keeps its interactive prompt layer in
 //! `reset.rs`, `migration` applies schema migrations.
 
-pub(super) mod migration;
 mod export;
+pub(super) mod migration;
 mod reset;
 
 use std::path::PathBuf;
