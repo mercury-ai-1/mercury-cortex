@@ -4,9 +4,22 @@ use std::time::{Duration, Instant};
 
 use mercury_cortex_core::engine::McIgnore;
 
+/// Writes `content` to a unique temp file and returns its path.
+///
+/// Uses a per-call unique name so tests can run in parallel threads without
+/// racing on a shared `.mcignore` file (the test harness runs tests
+/// concurrently; a shared path meant one test could `remove_file` the other's
+/// file, yielding an empty pattern set and a spurious failure).
 fn write_mcignore(content: &str) -> std::path::PathBuf {
     let mut path = std::env::temp_dir();
-    path.push(format!("mc_ignore_test_{}", std::process::id()));
+    path.push(format!(
+        "mc_ignore_test_{}_{}",
+        std::process::id(),
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos()
+    ));
     let mut f = std::fs::File::create(&path).unwrap();
     f.write_all(content.as_bytes()).unwrap();
     path
