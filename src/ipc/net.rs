@@ -135,10 +135,17 @@ pub(crate) async fn connect(endpoint: &Endpoint) -> io::Result<IpcStream> {
 /// FNV-1a over the socket path, mapped into the unprivileged port range. Both
 /// the daemon and every client hash the same `socket_path`, so they agree on
 /// the address without writing anything to disk.
+///
+/// The path is canonicalized before hashing because Windows is case-insensitive
+/// and treats `/` and `\` as equivalent separators: two processes constructing
+/// the same logical socket path with different spellings (e.g. `Path::join`
+/// chains versus an embedded forward-slash literal) must still derive the same
+/// port, or they would silently talk to different listeners.
 #[cfg(windows)]
 fn tcp_addr(path: &Path) -> SocketAddr {
     let lossy = path.to_string_lossy();
-    let bytes = lossy.as_bytes();
+    let canonical = lossy.replace('/', "\\").to_lowercase();
+    let bytes = canonical.as_bytes();
     let mut hash: u64 = 0xcbf2_9ce4_8422_2325;
     for &b in bytes {
         hash ^= u64::from(b);
@@ -146,4 +153,33 @@ fn tcp_addr(path: &Path) -> SocketAddr {
     }
     let port = 1024 + (hash % (u16::MAX as u64 - 1023)) as u16;
     SocketAddr::from(([127, 0, 0, 1], port))
+}
+
+#[cfg(all(test, windows))]
+mod tests {
+    use super::tcp_addr;
+    use std::path::Path;
+
+    /// The same logical socket path must derive the same port regardless of
+    /// how it is spelled. `PathBuf::push` preserves embedded `/` separators on
+    /// Windows (raw byte concatenation), so a daemon built with chained
+    /// `.join()` and a client built with a forward-slash literal must still
+    /// agree, otherwise they bind/connect on different ports.
+    #[test]
+    fn same_path_spelled_differently_maps_to_same_port() {
+        let backslash = Path::new(
+            r"C:\Users\runneradmin\AppData\Local\Temp\abc123\.mercury\cortex\runtime.sock",
+        );
+        let mixed = Path::new(
+            "C:/Users/runneradmin/AppData/Local/Temp/abc123/.mercury/cortex/runtime.sock",
+        );
+        assert_eq!(tcp_addr(backslash), tcp_addr(mixed));
+    }
+
+    #[test]
+    fn different_paths_map_to_different_ports() {
+        let a = Path::new(r"C:\Users\a\.mercury\cortex\runtime.sock");
+        let b = Path::new(r"C:\Users\b\.mercury\cortex\runtime.sock");
+        assert_ne!(tcp_addr(a), tcp_addr(b));
+    }
 }
