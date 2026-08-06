@@ -3,12 +3,14 @@
 use std::path::Path;
 use std::time::Duration;
 
-use super::Error;
-use super::identity::{ServiceIdentity, verify_process};
-use super::pidfile::PidFile;
-use super::signal::{is_alive, send_signal, wait_for_exit};
+use sysinfo::{ProcessRefreshKind, ProcessesToUpdate, System, UpdateKind};
 
-/// How long to wait for SIGTERM before escalating to SIGKILL.
+use super::Error;
+use super::identity::{ServiceIdentity, command_line, verify_process};
+use super::pidfile::PidFile;
+use super::signal::{force_termination, is_alive, request_termination, wait_for_exit};
+
+/// How long to wait for a graceful stop before escalating to a forced one.
 pub const GRACE_PERIOD: Duration = Duration::from_secs(5);
 
 /// What happened when `stop` ran.
@@ -18,11 +20,12 @@ pub enum StopOutcome {
     AlreadyStopped,
     /// PID file existed but pointed at a dead process; file removed.
     StalePidRemoved,
-    /// SIGTERM sent, process exited within the grace period, PID file removed.
+    /// Graceful termination requested, process exited within the grace period,
+    /// PID file removed.
     Stopped,
-    /// SIGTERM timed out; SIGKILL sent, process exited, PID file removed.
+    /// Graceful termination timed out; process was killed, PID file removed.
     ForceKilled,
-    /// PID alive but did not match the service identity — refused to signal.
+    /// PID alive but did not match the service identity — refused to touch it.
     IdentityMismatch,
     /// Orchestration failed (I/O, wait, scan). Carries a message.
     Failed(String),
@@ -36,9 +39,9 @@ impl StopOutcome {
             StopOutcome::StalePidRemoved => {
                 "Removed stale PID file (process was not running).".to_string()
             }
-            StopOutcome::Stopped => "Service stopped (SIGTERM).".to_string(),
+            StopOutcome::Stopped => "Service stopped (terminated).".to_string(),
             StopOutcome::ForceKilled => {
-                "Service force-killed (SIGTERM timed out, SIGKILL sent).".to_string()
+                "Service force-killed (graceful stop timed out).".to_string()
             }
             StopOutcome::IdentityMismatch => {
                 "Refusing to stop: PID does not match a Mercury Cortex process.".to_string()
@@ -50,7 +53,7 @@ impl StopOutcome {
 
 /// Stop every live process matching `ident`, seeded by the service's PID file.
 ///
-/// Never signals a process unless its command line matches
+/// Never terminates a process unless its command line matches
 /// `ident.command_pattern` — unrelated processes are always ignored.
 pub async fn stop(ident: &ServiceIdentity<'_>, data_dir: &Path) -> Result<StopOutcome, Error> {
     let pidfile = PidFile::new(data_dir, ident.name);
@@ -90,10 +93,11 @@ pub async fn stop(ident: &ServiceIdentity<'_>, data_dir: &Path) -> Result<StopOu
     Ok(outcome)
 }
 
-/// Signal `pid` (SIGTERM → grace → SIGKILL) and remove the PID file.
+/// Terminate `pid` (graceful request → grace period → kill) and remove the
+/// PID file.
 ///
-/// Identity is re-verified immediately before each signal so a PID reused by
-/// an unrelated process between scan and signal is never touched.
+/// Identity is re-verified immediately before each termination so a PID
+/// reused by an unrelated process between scan and signal is never touched.
 async fn stop_process(
     pid: u32,
     ident: &ServiceIdentity<'_>,
@@ -107,7 +111,7 @@ async fn stop_process(
         return Ok(StopOutcome::IdentityMismatch);
     }
 
-    if !send_signal_tolerant(pid, libc::SIGTERM)? {
+    if !request_termination(pid)? {
         let _ = pidfile.remove();
         return Ok(StopOutcome::Stopped);
     }
@@ -119,7 +123,7 @@ async fn stop_process(
     if !verify_process(pid, ident)? {
         return Ok(StopOutcome::IdentityMismatch);
     }
-    if !send_signal_tolerant(pid, libc::SIGKILL)? {
+    if !force_termination(pid)? {
         let _ = pidfile.remove();
         return Ok(StopOutcome::ForceKilled);
     }
@@ -129,47 +133,34 @@ async fn stop_process(
     }
 
     Ok(StopOutcome::Failed(format!(
-        "process {pid} did not exit after SIGKILL"
+        "process {pid} did not exit after termination"
     )))
 }
 
-/// Send `sig` to `pid`, treating "no such process" (ESRCH) as already-gone.
-fn send_signal_tolerant(pid: u32, sig: i32) -> Result<bool, Error> {
-    match send_signal(pid, sig) {
-        Ok(()) => Ok(true),
-        Err(Error::Io(e)) if e.raw_os_error() == Some(libc::ESRCH) => Ok(false),
-        Err(e) => Err(e),
-    }
-}
-
 /// List PIDs of live processes whose command line contains
-/// `ident.command_pattern`, parsed from `ps -axo pid=,command=`.
+/// `ident.command_pattern`, from a full process-table scan.
 ///
 /// A command line like `... mercury-cortex daemon stop` is a stop
 /// invocation, not the service itself. Excluding it prevents wrapper
 /// shells (e.g. `sh -c "mercury-cortex daemon stop"`) from being
-/// signalled when their argv contains the service's command pattern.
+/// terminated when their argv contains the service's command pattern.
 fn find_matching_pids(ident: &ServiceIdentity<'_>) -> Result<Vec<u32>, Error> {
-    let output = std::process::Command::new("ps")
-        .args(["-axo", "pid=,command="])
-        .output()?;
-    let text = String::from_utf8_lossy(&output.stdout);
+    let mut system = System::new();
+    system.refresh_processes_specifics(
+        ProcessesToUpdate::All,
+        false,
+        ProcessRefreshKind::nothing()
+            .with_cmd(UpdateKind::OnlyIfNotSet)
+            .with_exe(UpdateKind::OnlyIfNotSet),
+    );
 
     let stop_suffix = format!("{} stop", ident.command_pattern);
 
     let mut pids = Vec::new();
-    for line in text.lines() {
-        let line = line.trim_start();
-        let mut parts = line.splitn(2, char::is_whitespace);
-        let Some(pid_str) = parts.next() else {
-            continue;
-        };
-        let Ok(pid) = pid_str.parse::<u32>() else {
-            continue;
-        };
-        let command = parts.next().unwrap_or("");
+    for (pid, process) in system.processes() {
+        let command = command_line(process);
         if command.contains(ident.command_pattern) && !command.contains(&stop_suffix) {
-            pids.push(pid);
+            pids.push(pid.as_u32());
         }
     }
     Ok(pids)

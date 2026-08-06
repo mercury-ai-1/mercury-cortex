@@ -1,3 +1,5 @@
+#![cfg(unix)]
+
 use std::process::Command;
 
 use mercury_cortex::svc::{ServiceIdentity, verify_process};

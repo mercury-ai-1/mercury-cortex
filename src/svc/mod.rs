@@ -14,7 +14,9 @@ mod stop;
 
 pub use identity::{ServiceIdentity, verify_process};
 pub use pidfile::{PidFile, PidFileGuard};
-pub use signal::{is_alive, send_signal, wait_for_exit};
+#[cfg(unix)]
+pub use signal::send_signal;
+pub use signal::{is_alive, wait_for_exit};
 pub use stop::{StopOutcome, stop};
 
 /// Errors produced by the `svc` module.

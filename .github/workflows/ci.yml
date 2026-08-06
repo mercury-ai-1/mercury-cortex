@@ -50,8 +50,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        # NOTE: no Windows leg — src/svc/ is unix-only today (see docs/superpowers/specs/2026-08-06-release-pipeline-design.md).
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # actions/checkout@v5

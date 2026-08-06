@@ -39,10 +39,7 @@ jobs:
   build:
     name: build ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
-    # The Windows target is currently non-blocking: src/svc/ is unix-only, so
-    # the crate does not compile for x86_64-pc-windows-msvc yet. Enabled for
-    # visibility; ignored in results until the Rust source is ported.
-    continue-on-error: ${{ matrix.continue_on_error }}
+    # Windows is fully supported: src/svc/ compiles for x86_64-pc-windows-msvc.
     strategy:
       fail-fast: true
       matrix:
@@ -66,7 +63,6 @@ jobs:
           - target: x86_64-pc-windows-msvc
             os: windows-latest
             use_cross: false
-            continue_on_error: true
     env:
       TARGET: ${{ matrix.target }}
     steps:
