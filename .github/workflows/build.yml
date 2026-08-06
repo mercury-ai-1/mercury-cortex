@@ -18,7 +18,10 @@ on:
         type: string
 
 permissions:
-  contents: read
+  # contents: write is required because this workflow calls release.yml, whose
+  # create-release job creates the GitHub Release and uploads assets. With
+  # workflow_call, called jobs cannot exceed the caller's grants.
+  contents: write
   id-token: write # for attest-build-provenance
   attestations: write # for attest-build-provenance
 
