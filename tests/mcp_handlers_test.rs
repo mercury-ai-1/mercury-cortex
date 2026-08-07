@@ -494,13 +494,21 @@ async fn test_handle_register_missing_root() {
 
 #[tokio::test]
 async fn test_handle_register_invalid_root() {
-    let (_tmp, ctx) = create_test_context().await;
+    let (tmp, ctx) = create_test_context().await;
     let session: SessionId = 1;
+
+    // Use a path whose parent is a regular file: create_dir_all can never
+    // succeed for it on any platform. (An absolute path like /nonexistent/...
+    // is only uncreatable on POSIX; on Windows it resolves to the current
+    // drive root and gets created.)
+    let blocker = tmp.path().join("blocker");
+    std::fs::write(&blocker, b"").unwrap();
+    let invalid_root = blocker.join("project");
 
     let err = tools::project::handle_register(
         ctx,
         session,
-        json!({"root": "/nonexistent/path/that/does/not/exist"}),
+        json!({"root": invalid_root.to_string_lossy()}),
     )
     .await
     .unwrap_err();
