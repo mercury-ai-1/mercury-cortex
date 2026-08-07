@@ -7,7 +7,7 @@ license = "Apache-2.0"
 repository = "https://github.com/mercury-ai-1/mercury-cortex"
 readme = "README.md"
 keywords = ["ai", "indexing", "mcp", "code-search", "cli"]
-categories = ["command-line-utilities", "developer-tools"]
+categories = ["command-line-utilities", "development-tools"]
 exclude = [".github/", "docs/", "graphify-out/", "tests/", "scripts/"]
 
 [dependencies]
