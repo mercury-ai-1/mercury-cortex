@@ -125,8 +125,8 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           New-Item -ItemType Directory -Path "dist" -Force | Out-Null
-          Compress-Archive -Force \
-            -Path "target/$env:TARGET/release/$env:BINARY.exe" \
+          Compress-Archive -Force `
+            -Path "target/$env:TARGET/release/$env:BINARY.exe" `
             -DestinationPath "dist/$env:BINARY-$env:VERSION-$env:TARGET.zip"
           Get-ChildItem dist
         env:
