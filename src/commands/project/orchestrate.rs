@@ -1,4 +1,4 @@
-//! Project initialization orchestration — entry point, DB and IPC flows.
+//! Project initialization orchestration: entry point, DB and IPC flows.
 
 use std::path::Path;
 
@@ -82,7 +82,7 @@ pub async fn initialize_project(project_root: &Path, client: &CoreClient) -> Res
 ///
 /// Scaffolding runs locally through the facade; registration is delegated to
 /// the daemon over IPC. Output matches the pre-refactor IPC flow (no progress
-/// lines — the daemon-side register produces none).
+/// lines; the daemon-side register produces none).
 pub(super) async fn initialize_project_via_ipc(
     project_root: &Path,
     client: &RuntimeClient,

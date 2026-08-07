@@ -1,4 +1,4 @@
-## Step 6 — Report
+## Step 6: Report
 
 Summarize the completed work, verify the outcome, and report the final
 status of the implementation and metadata import.
@@ -24,7 +24,7 @@ Report the metadata status:
 ### 3. Report
 
 Display a structured summary of the completed workflow. Adapt the
-sections based on what actually happened — omit sections with no
+sections based on what actually happened, omitting sections with no
 meaningful data.
 
 **With changes (✅ success):**
@@ -66,7 +66,7 @@ No source changes were required.
 
 ### Metadata
 
-Not generated — no files changed.
+Not generated; no files changed.
 
 > **Outcome:** Request completed successfully. No implementation changes needed.
 ```
@@ -77,7 +77,7 @@ If `metadata/import` reported failures, list the affected files and
 explain how to retry them after fixing the reported issues.
 
 ```markdown
-## ⚠️ Development Workflow Complete — Warnings
+## ⚠️ Development Workflow Complete: Warnings
 
 ### Implementation
 

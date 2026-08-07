@@ -16,13 +16,55 @@ It works with any MCP-compatible AI assistant, including Claude Code, OpenCode, 
 
 ## Why Mercury Cortex?
 
-AI coding assistants are powerful, but they lack persistent memory. Every new conversation starts from zero — they don't remember your project's architecture, past decisions, or codebase patterns. This forces you to repeatedly re-explain context, losing time and breaking flow.
+AI coding assistants are powerful, but they lack persistent memory. Every new conversation starts from zero. They do not remember your project's architecture, past decisions, or codebase patterns. This forces you to repeatedly re-explain context, losing time and breaking flow.
 
-Mercury Cortex fills this gap. Your AI describes what it builds, imports that metadata into a structured knowledge graph, and serves that context to any MCP-compatible AI assistant. When you return to a project after weeks, your AI partner remembers everything — file relationships, code patterns, and project history.
+Mercury Cortex fills this gap. Your AI describes what it builds, imports that metadata into a structured knowledge graph, and serves that context to any MCP-compatible AI assistant. When you return to a project after weeks, your AI partner remembers everything: file relationships, code patterns, and project history.
 
 The engine runs locally on your machine. Your code never leaves your device, and the knowledge graph is built from your actual project files, not a cloud service. Connect it once, and every AI tool you use gains the same persistent project understanding.
 
 [Know more →](#features--vision)
+
+## Installation
+
+You can install `mercury-cortex` either from prebuilt release binaries or from source with Cargo. The scripts are the easiest option and work on any platform.
+
+### Prebuilt binaries (Linux, macOS, Windows)
+
+Download the latest release for your platform and OS. The script verifies the SHA-256 checksum before installing and never executes downloaded content.
+
+**Linux and macOS:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/mercury-ai-1/mercury-cortex/main/scripts/install.sh | sh
+```
+
+**Windows (PowerShell):**
+
+```powershell
+irm https://raw.githubusercontent.com/mercury-ai-1/mercury-cortex/main/scripts/install.ps1 | iex
+```
+
+To install a specific release version, pin it explicitly:
+
+```bash
+VERSION=v0.1.0 sh scripts/install.sh
+```
+
+```powershell
+.\install.ps1 -Version v0.1.0
+```
+
+The scripts install to `/usr/local/bin` (Unix) or `~/.local/bin` when the former is not writable, and to `%LOCALAPPDATA%\Programs\mercury-cortex-bin` on Windows. See [docs/installers.md](docs/installers.md) for details on how the installers work.
+
+### From source with Cargo
+
+Install the latest release from [crates.io](https://crates.io/crates/mercury-cortex):
+
+```bash
+cargo install mercury-cortex
+```
+
+Using `cargo install` requires a Rust toolchain but builds directly from source, so it is a good option if you develop on Mercury Cortex itself or want a version newer than the latest release.
 
 ## Quick Start
 
@@ -75,7 +117,7 @@ mercury-cortex:dev
 Create light, dark, and system themes.
 ```
 
-The AI searches the knowledge graph before writing code, reuses existing patterns, and updates the index with new files. Use it for any task — bug fixes, features, refactoring. See [Workflows](#workflows) for details.
+The AI searches the knowledge graph before writing code, reuses existing patterns, and updates the index with new files. Use it for any task, including bug fixes, features, and refactoring. See [Workflows](#workflows) for details.
 
 ## Connect Your AI Tool
 
@@ -129,25 +171,25 @@ args = ["mcp", "serve"]
 
 ## Workflows
 
-Mercury Cortex provides two workflows (called "prompts" in MCP) that guide your AI through structured tasks. Both are triggered from your AI chat — not from the terminal.
+Mercury Cortex provides two workflows (called "prompts" in MCP) that guide your AI through structured tasks. Both are triggered from your AI chat, not from the terminal.
 
-### `mercury-cortex:init` — Project Initialization
+### `mercury-cortex:init` (Project Initialization)
 
 **When to use:** Once, when first setting up a project with Mercury Cortex.
 
 **How to use:** Type `mercury-cortex:init` in your AI chat. The AI calls the MCP prompt and follows a 5-step workflow:
 
-1. **Prerequisites and Validation** — Verifies the project is registered and the engine is reachable.
-2. **Project Analysis** — Detects languages, frameworks, and project structure.
-3. **`.mcignore` Refinement** — Reviews and updates exclusion patterns (e.g., `target/`, `build/`, `.env`).
-4. **Metadata Generation and Import** — Generates metadata for source files, writes JSON to `.mercury-cortex/temp/`, and imports via `metadata/import`.
-5. **Verification and Summary** — Confirms the index is populated and reports results.
+1. **Prerequisites and Validation**, which verifies the project is registered and the engine is reachable.
+2. **Project Analysis**, which detects languages, frameworks, and project structure.
+3. **`.mcignore` Refinement**, which reviews and updates exclusion patterns (e.g., `target/`, `build/`, `.env`).
+4. **Metadata Generation and Import**, which generates metadata for source files, writes JSON to `.mercury-cortex/temp/`, and imports via `metadata/import`.
+5. **Verification and Summary**, which confirms the index is populated and reports results.
 
 After initialization, every source file's purpose, features, tags, and exports are searchable by your AI.
 
-### `mercury-cortex:dev` — Development Workflow
+### `mercury-cortex:dev` (Development Workflow)
 
-**When to use:** During day-to-day development. Use this alongside your normal prompts — ask it to analyze, implement, or refactor, and it will search the knowledge graph before writing code.
+**When to use:** During day-to-day development. Use this alongside your normal prompts, asking it to analyze, implement, or refactor. It will search the knowledge graph before writing code.
 
 **How to use:** Prefix your normal development requests with `mercury-cortex:dev`:
 
@@ -171,13 +213,13 @@ Fix the race condition in the connection pool.
 
 The AI follows a 7-step workflow:
 
-0. **About Mercury Cortex** — Reviews available tools and capabilities.
-1. **Analyze the Request** — Breaks down what you're asking for.
-2. **Search Mercury Cortex** — Queries the knowledge graph for relevant existing code.
-3. **Decide: Reuse, Extend, or Create** — Determines whether to reuse existing code, extend it, or write something new.
-4. **Implement Changes** — Makes the code changes.
-5. **Generate and Submit Metadata** — Updates the knowledge graph with the new or changed files.
-6. **Report** — Summarizes what was done.
+0. **About Mercury Cortex**, which reviews available tools and capabilities.
+1. **Analyze the Request**, which breaks down what you are asking for.
+2. **Search Mercury Cortex**, which queries the knowledge graph for relevant existing code.
+3. **Decide: Reuse, Extend, or Create**, which determines whether to reuse existing code, extend it, or write something new.
+4. **Implement Changes**, which makes the code changes.
+5. **Generate and Submit Metadata**, which updates the knowledge graph with the new or changed files.
+6. **Report**, which summarizes what was done.
 
 The dev workflow ensures your AI always searches before writing, reuses before creating, and keeps the knowledge graph current.
 
@@ -241,11 +283,11 @@ Optional project-level instruction files that AI assistants read to understand y
 
 Mercury Cortex is built around these components:
 
-- **Runtime** — Coordinates the engine, project state, and IPC
-- **Engine** — Knowledge graph operations (see `mercury-cortex-core`)
-- **MCP Server** — Implements the Model Context Protocol over stdio
-- **IPC Server** — Unix socket daemon for process communication
-- **Database** — SurrealDB with local file storage
+- **Runtime** coordinates the engine, project state, and IPC
+- **Engine** handles knowledge graph operations (see `mercury-cortex-core`)
+- **MCP Server** implements the Model Context Protocol over stdio
+- **IPC Server** is the Unix socket daemon for process communication
+- **Database** is SurrealDB with local file storage
 
 For the core library internals, see [`mercury-cortex-core`](https://github.com/mercury-ai-1/mercury-cortex-core).
 
@@ -253,29 +295,29 @@ For the core library internals, see [`mercury-cortex-core`](https://github.com/m
 
 ### Available Today
 
-- **Local-first knowledge engine** — Your code never leaves your machine. The knowledge graph is built from your actual project files, stored in a local SurrealDB database.
-- **MCP server** — Implements the Model Context Protocol over stdio, connecting your AI assistant to the knowledge graph. Works with OpenCode, Claude Code, Codex, Gemini CLI, and other MCP-compatible tools.
-- **AI workflows** — Two built-in workflows guide your AI through structured tasks:
-  - `mercury-cortex:init` — One-time project setup: registers the project, analyzes structure, generates metadata for every file, and imports it into the knowledge graph.
-  - `mercury-cortex:dev` — Day-to-day development: searches the knowledge graph before writing code, reuses existing patterns, and keeps the index current.
-- **Project registration** — Register any project directory with a single command. Creates `.mercury-cortex/` config, `.mcignore` patterns, and AI instruction files.
-- **Metadata import** — The AI generates structured metadata (purpose, features, tags, exports) for source files and imports it into the knowledge graph via `metadata/import`.
-- **Semantic search** — Search indexed file metadata by purpose, features, language, or framework — not just filenames.
-- **Database management** — Backup, restore, reset, and export your knowledge graph with `mercury-cortex db` commands.
-- **CLI** — Full command-line interface for setup, profile management, project registration, MCP server control, daemon management, and database operations. See [docs/commands.md](docs/commands.md) for the complete reference.
+- **Local-first knowledge engine.** Your code never leaves your machine. The knowledge graph is built from your actual project files, stored in a local SurrealDB database.
+- **MCP server.** Implements the Model Context Protocol over stdio, connecting your AI assistant to the knowledge graph. Works with OpenCode, Claude Code, Codex, Gemini CLI, and other MCP-compatible tools.
+- **AI workflows.** Two built-in workflows guide your AI through structured tasks:
+  - `mercury-cortex:init`, a one-time project setup: registers the project, analyzes structure, generates metadata for every file, and imports it into the knowledge graph.
+  - `mercury-cortex:dev`, for day-to-day development: searches the knowledge graph before writing code, reuses existing patterns, and keeps the index current.
+- **Project registration.** Register any project directory with a single command. Creates `.mercury-cortex/` config, `.mcignore` patterns, and AI instruction files.
+- **Metadata import.** The AI generates structured metadata (purpose, features, tags, exports) for source files and imports it into the knowledge graph via `metadata/import`.
+- **Semantic search.** Search indexed file metadata by purpose, features, language, or framework, not just by filenames.
+- **Database management.** Backup, restore, reset, and export your knowledge graph with `mercury-cortex db` commands.
+- **CLI.** Full command-line interface for setup, profile management, project registration, MCP server control, daemon management, and database operations. See [docs/commands.md](docs/commands.md) for the complete reference.
 
 ### Long-Term Vision
 
 Mercury Cortex is designed to evolve from a personal AI knowledge engine into an **organization-wide AI knowledge platform**. The long-term vision includes:
 
-- **Organization knowledge sharing** — Teams share a common knowledge graph across repositories, so every developer's AI has access to the same institutional knowledge.
-- **Multi-agent collaboration** — Multiple AI agents work together on shared tasks, coordinating through the knowledge graph to avoid conflicts and duplication.
-- **AI-to-AI communication** — AI assistants in different projects or sessions discover and reference each other's work through the knowledge graph.
-- **Knowledge ownership discovery** — Automatically identify who wrote what, who maintains which modules, and where expertise lives in the organization.
-- **Cross-project knowledge graph** — A unified graph connecting files, modules, and patterns across all registered projects, enabling reuse at scale.
-- **Context sharing between AI agents** — AI agents pass context to each other through the knowledge graph, maintaining continuity across sessions and tools.
-- **Intelligent code ownership detection** — Automatically detect code ownership, responsibility boundaries, and dependency relationships across the codebase.
-- **Team knowledge network** — A network of project knowledge graphs that surfaces relevant patterns, decisions, and conventions across the entire team.
+- **Organization knowledge sharing.** Teams share a common knowledge graph across repositories, so every developer's AI has access to the same institutional knowledge.
+- **Multi-agent collaboration.** Multiple AI agents work together on shared tasks, coordinating through the knowledge graph to avoid conflicts and duplication.
+- **AI-to-AI communication.** AI assistants in different projects or sessions discover and reference each other's work through the knowledge graph.
+- **Knowledge ownership discovery.** Automatically identify who wrote what, who maintains which modules, and where expertise lives in the organization.
+- **Cross-project knowledge graph.** A unified graph connecting files, modules, and patterns across all registered projects, enabling reuse at scale.
+- **Context sharing between AI agents.** AI agents pass context to each other through the knowledge graph, maintaining continuity across sessions and tools.
+- **Intelligent code ownership detection.** Automatically detect code ownership, responsibility boundaries, and dependency relationships across the codebase.
+- **Team knowledge network.** A network of project knowledge graphs that surfaces relevant patterns, decisions, and conventions across the entire team.
 
 > *These capabilities represent the long-term vision of Mercury Cortex and are not part of the current release.*
 
@@ -304,4 +346,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, workflow, and guid
 
 ## License
 
-Apache-2.0 — Copyright 2026 Mercury Cortex Contributors. See [LICENSE](LICENSE) for details.
+Apache-2.0. Copyright 2026 Mercury Cortex Contributors. See [LICENSE](LICENSE) for details.

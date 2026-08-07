@@ -1,4 +1,4 @@
-//! MCP handler for `project/close` — close the active project.
+//! MCP handler for `project/close`: close the active project.
 
 use serde_json::Value;
 use tracing::info;

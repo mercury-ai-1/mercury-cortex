@@ -3,7 +3,7 @@
 Mercury Cortex is a context-aware code intelligence engine that indexes
 project metadata and makes it searchable. It enables AI tools to discover
 existing implementations, understand their purpose and API surface, and
-find relevant code across the entire workspace — the current project and
+find relevant code across the entire workspace: the current project and
 every other project Mercury Cortex knows about.
 
 ### How It Works
@@ -45,7 +45,7 @@ change.
 6. **Report** the result.
 
 Follow each step in order. Do not skip steps unless the request is
-trivial (e.g., a typo fix or literal rename) — and even then, consider
+trivial (e.g., a typo fix or literal rename). Even then, consider
 whether metadata should be updated.
 
 ### Open the Current Project First
@@ -55,7 +55,7 @@ for the **active project**. Before searching, ensure the current project
 is open:
 
 1. Call `project/status`. If it returns a `project_id`, the project is
-   already open — proceed directly to Step 1.
+   already open, so proceed directly to Step 1.
 
 2. If `project/status` returns `{"status": "no_project_open"}`, read
    `.mercury-cortex/config.json` from the project root. Use its

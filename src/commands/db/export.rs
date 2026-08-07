@@ -1,4 +1,4 @@
-//! `mercury-cortex db export` — export table data to JSON files.
+//! `mercury-cortex db export`: export table data to JSON files.
 
 use std::path::PathBuf;
 

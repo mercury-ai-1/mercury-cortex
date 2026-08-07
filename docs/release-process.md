@@ -1,4 +1,4 @@
-# Mercury Cortex — Release Pipeline
+# Mercury Cortex Release Pipeline
 
 This document is the operational guide for the CI/CD pipeline. It corresponds
 to the approved design in
@@ -75,7 +75,7 @@ The current pinned SHAs are recorded inline in each workflow file.
 | `aarch64-apple-darwin`      | `macos-14`      | native (arm64)  |
 | `x86_64-pc-windows-msvc`    | `windows-latest`| native          |
 
-`cross` is used **only** for the Linux ARM64 leg — the single case where a
+`cross` is used **only** for the Linux ARM64 leg, the single case where a
 native GitHub-hosted runner isn't available. Everything else builds natively
 (fastest, most reliable). `cargo-zigbuild` was considered but rejected:
 `cross` is the ecosystem standard and adds no toolchain step to 4 of 5 legs.
@@ -86,7 +86,7 @@ native GitHub-hosted runner isn't available. Everything else builds natively
   Archive/triple match exactly what `scripts/install.sh` and
   `scripts/install.ps1` expect (see `docs/installers.md`).
 - **`checksums.txt` is generated centrally in `release.yml`** on one Linux job
-  after all five archives are downloaded — `sha256sum` output is then
+  after all five archives are downloaded; `sha256sum` output is then
   deterministic and cross-platform pain is avoided.
 - **Attestations** (`actions/attest-build-provenance`) attach SLSA provenance
   to every archive in `build.yml`. These and the SHA-256 checksums together let

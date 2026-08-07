@@ -1,4 +1,4 @@
-//! MCP handler for `index/paths` — list indexed file paths for the active project.
+//! MCP handler for `index/paths`: list indexed file paths for the active project.
 //!
 //! Returns the relative paths of all indexed files in the active project.
 //! Used by the AI tool during re-run gap-fill to determine which files

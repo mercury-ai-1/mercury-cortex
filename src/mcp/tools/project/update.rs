@@ -1,4 +1,4 @@
-//! MCP handler for `project/update` — save AI-generated project metadata.
+//! MCP handler for `project/update`: save AI-generated project metadata.
 
 use serde_json::Value;
 
@@ -12,7 +12,7 @@ use mercury_cortex_core::service::project::{ProjectService, UpdateMetadataParams
 ///
 /// The AI assistant analyses the project and sends the detected language,
 /// framework, build system, package manager, and technology stack.  Mercury
-/// Cortex stores only the fields the AI explicitly provides — omitted fields
+/// Cortex stores only the fields the AI explicitly provides; omitted fields
 /// are not overwritten in the database.
 pub async fn handle_update(
     ctx: McpContext,

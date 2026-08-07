@@ -1,12 +1,12 @@
-## Step 2 — Project Analysis
+## Step 2: Project Analysis
 
-1. Analyze the project using any relevant signals — configuration files,
-   project structure, dependency declarations, build configuration, and
-   other patterns — to determine the project's language and framework.
+1. Analyze the project using any relevant signals, including configuration
+   files, project structure, dependency declarations, build configuration,
+   and other patterns, to determine the project's language and framework.
 
 2. Call `project/update` with the detected information. Only include
    fields you can determine with reasonable confidence. Mercury Cortex
-   stores only the fields you explicitly provide — omitted fields are
+   stores only the fields you explicitly provide; omitted fields are
    not overwritten:
 
    ```json
@@ -22,7 +22,7 @@
    - Always include `language` when detected.
    - Include `framework` only if you can determine one with reasonable
      confidence.
-   - Never send empty strings — omit the field entirely instead.
+   - Never send empty strings; omit the field entirely instead.
      Mercury Cortex uses your explicit fields without overwriting
      existing values for omitted fields.
    - **CRITICAL**: The `metadata` value must be a raw JSON object, NOT a
@@ -39,7 +39,7 @@
 
 Upon successful completion of Step 2, emit a concise progress update before moving to Step 3:
 
-**Step 2 Complete — Project Analysis**
+**Step 2 Complete: Project Analysis**
 - **Language:** `<language>`
 - **Framework:** `<framework or "None">`
 

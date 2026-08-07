@@ -1,4 +1,4 @@
-## Step 5 — Verification, Cleanup, and Summary
+## Step 5: Verification, Cleanup, and Summary
 
 ### 1. Verify the Complete Workflow
 
@@ -9,7 +9,7 @@ Before reporting success, confirm that every prior step completed:
 - Project analysis completed (language, framework detected and saved).
 - `.mcignore` updated (new patterns submitted, user rules preserved).
 - Metadata generation completed (key source files indexed).
-- `metadata/import` completed — the engine imported every staged metadata
+- `metadata/import` completed, with the engine importing every staged metadata
   file.
 
 If any step was skipped or failed, report the specific issue in the summary.
@@ -36,7 +36,7 @@ After import, confirm that Mercury Cortex reflects the expected state:
 ### 4. Display a Structured Summary
 
 Present a concise completion report covering the final state of each step.
-Adapt the sections based on what actually happened — omit sections with no
+Adapt the sections based on what actually happened, omitting sections with no
 meaningful data. Do not repeat details already shown during earlier steps.
 
 The `indexed_files` count comes from the `metadata/import` response.
@@ -78,7 +78,7 @@ If specific steps failed but others succeeded, show only the failed
 sections with ❌ and include an action items list:
 
 ```markdown
-## ⚠️ Mercury Cortex Initialization — Partial
+## ⚠️ Mercury Cortex Initialization: Partial
 
 ### ✅ Project
 

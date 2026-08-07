@@ -1,4 +1,4 @@
-//! MCP handler for `project/open` — open a project in the engine.
+//! MCP handler for `project/open`: open a project in the engine.
 
 use std::path::PathBuf;
 

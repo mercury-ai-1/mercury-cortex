@@ -1,4 +1,4 @@
-//! MCP handler for `search/code` — search indexed file metadata.
+//! MCP handler for `search/code`: search indexed file metadata.
 
 use serde_json::Value;
 use tracing::info;

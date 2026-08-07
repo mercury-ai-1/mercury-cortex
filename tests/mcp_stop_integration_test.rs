@@ -78,7 +78,7 @@ async fn mcp_stop_terminates_serve_and_releases_db_lock() -> anyhow::Result<()> 
 
     // 3. DB lock released. SurrealKV never deletes the LOCK file (its PID is
     //    informational; the lock lives in the OS-level flock), so probe the
-    //    flock directly — db::connect() would unlink the file and retry,
+    //    flock directly; db::connect() would unlink the file and retry,
     //    masking a live-held lock. Scoped so our probe lock is released
     //    before the connect below.
     let lock = home.join(".mercury/cortex/mercury_cortex_global_knowledge.db/LOCK");

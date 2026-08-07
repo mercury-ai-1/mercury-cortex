@@ -1,4 +1,4 @@
-//! MCP handler for `metadata/import` — import staged AI-generated metadata.
+//! MCP handler for `metadata/import`: import staged AI-generated metadata.
 
 use crate::mcp::context::McpContext;
 use crate::mcp::error::McpResult;

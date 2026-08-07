@@ -1,4 +1,4 @@
-//! The `mercury-cortex db` command group — database maintenance operations.
+//! The `mercury-cortex db` command group: database maintenance operations.
 //!
 //! Each subcommand routes to the `DatabaseClient` facade; this module only
 //! formats and prints results. `reset` keeps its interactive prompt layer in
@@ -17,7 +17,7 @@ use mercury_cortex_core::client::CoreClient;
 use super::db::reset::run as run_reset;
 use super::help;
 
-/// Database maintenance operations — backups, restores, and table resets.
+/// Database maintenance operations: backups, restores, and table resets.
 #[derive(Subcommand)]
 pub enum DbCommand {
     /// Create a timestamped backup of the `SurrealKV` database.

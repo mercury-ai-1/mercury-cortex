@@ -1,4 +1,4 @@
-## Step 1 — Validate Project
+## Step 1: Validate Project
 
 ### Never Modify Project Identity
 
@@ -21,7 +21,7 @@ and instruct the user to run:
    error and stop.
 
 2. **Identify the project root.** The project root is your current working
-   directory — the directory where the user started the session. Use the
+   directory, i.e. the directory where the user started the session. Use the
    absolute path to this directory as the project root throughout this
    workflow.
 
@@ -75,7 +75,7 @@ step until the user resolves the identity issue.
 
 Upon successful completion of Step 1, emit a concise progress update before moving to Step 2:
 
-**Step 1 Complete — Project Validated**
+**Step 1 Complete: Project Validated**
 - **Project ID:** `<project_id>`
 - **Root Path:** `<project_root>`
 

@@ -1,4 +1,4 @@
-//! MCP handler for `project/register` — register a project in Mercury Cortex.
+//! MCP handler for `project/register`: register a project in Mercury Cortex.
 
 use std::path::PathBuf;
 
@@ -16,7 +16,7 @@ use mercury_cortex_core::service::scaffold;
 /// Creates the `.mercury-cortex/` directory structure, registers the project
 /// in the database, opens it in the engine, and returns the project identity.
 ///
-/// This handler is safe to call multiple times — it will reuse an existing
+/// This handler is safe to call multiple times; it will reuse an existing
 /// registration when the directory is already initialised.
 pub async fn handle_register(
     ctx: McpContext,

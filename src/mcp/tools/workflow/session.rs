@@ -1,4 +1,4 @@
-//! MCP handler for `workflow/session` — get session context and step list.
+//! MCP handler for `workflow/session`: get session context and step list.
 
 use serde_json::Value;
 use tracing::info;

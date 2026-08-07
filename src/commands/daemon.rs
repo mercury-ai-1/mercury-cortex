@@ -118,7 +118,7 @@ async fn run_serve(args: DaemonArgs) -> Result<(), anyhow::Error> {
 
     // Explicitly cancel the IPC accept loop; `shutdown_background()` in main
     // would also abort it, but this makes the shutdown self-contained. Killing
-    // in-flight requests is fine — the engine is already stopped.
+    // in-flight requests is fine; the engine is already stopped.
     ipc_handle.abort();
 
     Ok(())

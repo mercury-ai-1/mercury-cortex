@@ -1,7 +1,7 @@
-//! MCP handler for `project/update_mcignore` — append ignore patterns from AI.
+//! MCP handler for `project/update_mcignore`: append ignore patterns from AI.
 //!
 //! The AI tool analyzes the project structure and determines which patterns
-//! to add. The handler validates the request and writes the patterns — it
+//! to add. The handler validates the request and writes the patterns; it
 //! does not analyze the project or make decisions about what to ignore.
 
 use std::collections::BTreeSet;
@@ -17,7 +17,7 @@ use crate::mcp::{McpError, McpResult};
 /// Append AI-detected ignore patterns to `.mcignore`.
 ///
 /// The AI tool analyzes the project structure and determines which patterns
-/// to add. The handler validates the request and writes the patterns — it
+/// to add. The handler validates the request and writes the patterns; it
 /// does not analyze the project or make decisions about what to ignore.
 pub async fn handle_update_mcignore(
     ctx: McpContext,
@@ -49,7 +49,7 @@ pub async fn handle_update_mcignore(
 
     if !mcignore_path.exists() {
         return Err(McpError::InvalidParams(
-            ".mcignore not found — run `mercury-cortex project` first".into(),
+            ".mcignore not found; run `mercury-cortex project` first".into(),
         ));
     }
 

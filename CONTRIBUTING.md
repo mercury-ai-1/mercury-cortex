@@ -67,7 +67,7 @@ Every command and subcommand has externalized help text in `src/commands/help/`.
 1. Add or update the help text in the appropriate help module
 2. Add or update the corresponding help test in `tests/help_audit_test.rs`
 
-Tests enforce that help text exists for all commands — the build will fail without it.
+Tests enforce that help text exists for all commands; the build will fail without it.
 
 ## Testing
 
@@ -81,18 +81,18 @@ Tests enforce that help text exists for all commands — the build will fail wit
 
 Use [conventional commits](https://www.conventionalcommits.org/):
 
-- `feat:` — New feature
-- `fix:` — Bug fix
-- `refactor:` — Code restructuring without behavior change
-- `test:` — Adding or updating tests
-- `docs:` — Documentation changes
-- `chore:` — Maintenance tasks
+- `feat:` for new features
+- `fix:` for bug fixes
+- `refactor:` for code restructuring without behavior change
+- `test:` for adding or updating tests
+- `docs:` for documentation changes
+- `chore:` for maintenance tasks
 
 ## Code Style
 
 - Follow existing code patterns in the crate
 - Keep functions focused and small
-- Name variables and functions clearly — prefer explicit over clever
+- Name variables and functions clearly; prefer explicit over clever
 - Use `thiserror` for error types
 
 ## License

@@ -24,7 +24,7 @@ use rmcp::{ServerHandler, tool, tool_handler, tool_router};
 pub struct McpHandler {
     /// Shared access to the engine, config, and runtime context.
     ///
-    /// Lazily initialized — the MCP server starts responding to protocol
+    /// Lazily initialized; the MCP server starts responding to protocol
     /// handshakes immediately, while the engine is initialized in the
     /// background. Tool callers block on [`LazyContext::get`] until ready.
     pub ctx: LazyContext,

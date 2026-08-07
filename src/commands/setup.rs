@@ -12,7 +12,7 @@ use mercury_cortex_core::client::CoreClient;
 
 /// Run the full setup flow.
 ///
-/// Safe to call multiple times — uses `IF NOT EXISTS` throughout and tracks
+/// Safe to call multiple times; uses `IF NOT EXISTS` throughout and tracks
 /// applied migrations in a `_migrations` table.
 pub async fn run(json: bool) -> Result<(), anyhow::Error> {
     let paths = CoreClient::paths()?;

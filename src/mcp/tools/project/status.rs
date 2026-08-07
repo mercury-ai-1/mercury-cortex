@@ -1,4 +1,4 @@
-//! MCP handler for `project/status` — current project state.
+//! MCP handler for `project/status`: current project state.
 
 use crate::mcp::context::McpContext;
 use crate::mcp::error::{McpError, McpResult};

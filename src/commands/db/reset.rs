@@ -1,4 +1,4 @@
-//! Database reset — clear data from one or all schema tables.
+//! Database reset: clear data from one or all schema tables.
 //!
 //! The transport-agnostic domain logic lives in the core `db::reset`
 //! module; this module only provides the interactive terminal wrapper

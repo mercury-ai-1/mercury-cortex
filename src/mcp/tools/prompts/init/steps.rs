@@ -49,7 +49,7 @@ pub fn step_content(number: usize) -> Option<&'static str> {
 #[must_use]
 pub fn body() -> String {
     String::from(
-        "# mercury-cortex:init — Project Initialization Workflow\n\n\
+        "# mercury-cortex:init: Project Initialization Workflow\n\n\
          This workflow registers the project with Mercury Cortex, analyzes its language and \
          framework, refines `.mcignore`, generates metadata for the project's files, and imports \
          them via `metadata/import`.\n\n\
@@ -59,7 +59,7 @@ pub fn body() -> String {
          3. Execute the instructions returned by `workflow/step`.\n\
          4. After completing each step, proceed to the next one in order.\n\
          5. After the final step, report the summary to the user.\n\n\
-         If any step fails, report the error and stop — do not skip ahead.\n",
+         If any step fails, report the error and stop; do not skip ahead.\n",
     )
 }
 

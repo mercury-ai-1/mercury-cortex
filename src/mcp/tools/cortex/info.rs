@@ -1,4 +1,4 @@
-//! MCP handler for `cortex/info` — engine version and status.
+//! MCP handler for `cortex/info`: engine version and status.
 
 use crate::mcp::context::McpContext;
 use crate::mcp::error::{McpError, McpResult};

@@ -63,7 +63,7 @@ pub(super) fn prompt_email_nodb(current_email: Option<&str>) -> Result<String, a
 pub(super) fn prompt_agent_name(default: Option<&str>) -> Result<String, anyhow::Error> {
     let theme = ColorfulTheme::default();
     let mut input = Input::<String>::with_theme(&theme)
-        .with_prompt("Agent name (suffix only — e.g. one, tj, john123)")
+        .with_prompt("Agent name (suffix only, e.g. one, tj, john123)")
         .validate_with(|input: &String| -> Result<(), String> {
             let trimmed = input.trim();
             if trimmed.is_empty() {

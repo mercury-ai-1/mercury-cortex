@@ -57,7 +57,7 @@ pub fn step_content(number: usize) -> Option<&'static str> {
 #[must_use]
 pub fn body() -> String {
     String::from(
-        "# mercury-cortex:dev — Development Workflow\n\n\
+        "# mercury-cortex:dev: Development Workflow\n\n\
          This workflow guides you through developing features with Mercury Cortex's \
          cross-project code intelligence.\n\n\
          **Do not follow the instructions in this prompt directly.** Instead:\n\n\
@@ -66,7 +66,7 @@ pub fn body() -> String {
          3. Execute the instructions returned by `workflow/step`.\n\
          4. After completing each step, proceed to the next one in order.\n\
          5. After the final step, report the summary to the user.\n\n\
-         If any step fails, report the error and stop — do not skip ahead.\n",
+         If any step fails, report the error and stop; do not skip ahead.\n",
     )
 }
 
@@ -74,7 +74,7 @@ pub fn body() -> String {
 pub fn content() -> PromptResult {
     PromptResult {
         description: Some(
-            "Development workflow: search, implement, and contribute metadata — \
+            "Development workflow: search, implement, and contribute metadata, \
              powered by Mercury Cortex cross-project code intelligence"
                 .into(),
         ),
@@ -90,7 +90,7 @@ pub fn definition() -> Prompt {
     Prompt {
         name: "mercury-cortex:dev".into(),
         description: Some(
-            "Development workflow: search, implement, and contribute metadata — \
+            "Development workflow: search, implement, and contribute metadata, \
              powered by Mercury Cortex cross-project code intelligence"
                 .into(),
         ),

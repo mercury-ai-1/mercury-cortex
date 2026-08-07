@@ -36,7 +36,7 @@ single top-level directory.
 
 Every URL is derived from four constants: the repo slug, the release version,
 the target triple, and the fixed asset prefix. There is **no endpoint scraping**
-of release HTML — versions and asset names are assembled deterministically.
+of release HTML; versions and asset names are assembled deterministically.
 
 Given `REPO=owner/repo`, `VERSION=v0.5.2`, triple `x86_64-unknown-linux-gnu`:
 
@@ -92,7 +92,7 @@ the better failure mode.
 Integrity is enforced **before** extraction:
 
 1. Both installers fetch `checksums.txt` from the **same release tag** as the
-   binary — never a different tag or endpoint.
+   binary, never a different tag or endpoint.
 2. They extract only the line referencing the exact archive name they
    downloaded, avoiding any trust in unrelated/forged lines.
 3. They compute the SHA-256 of the downloaded archive locally:
@@ -119,7 +119,7 @@ stronger layer (see section 7).
 - **Fail fast:** `set -eu` in `install.sh`; `$ErrorActionPreference='Stop'` plus
   explicit `throw`/`exit 1` on every failure in `install.ps1`.
 - **Atomic replace (shell):** the binary is copied to a `.new` staging name in
-  the destination directory, then `mv -f` — a crash never leaves a half-written
+  the destination directory, then `mv -f`. A crash never leaves a half-written
   `mercury-cortex`. PowerShell uses `Copy-Item -Force` (overwrite) per platform.
 - **Clean up even on error**, so no stray `.zip`, `.tar.gz`, or partial binary
   litters the machine.
@@ -149,7 +149,7 @@ On success both print the installed path and the resolved version
 1. **Add a release workflow that emits and signs `checksums.txt`.**
    A GitHub Actions job building the five archives plus `checksums.txt`, then
    attaching **Sigstore/GitHub attestations** so `gh attestation verify` can
-   anchor trust — converting TLS+checksum into supply-chain-attested
+   anchor trust, converting TLS+checksum into supply-chain-attested
    verification.
 2. **Keep `VERSION` / `-Version` pinning as the primary CI path.** Every CI
    install should pin the exact tag (not "latest") for reproducibility;
@@ -161,5 +161,5 @@ On success both print the installed path and the resolved version
 5. **Document the curl | sh trade-off** and pin a documented script content
    hash per release for scriptable installs.
 
-Keep the scripts dependency-free (curl + tar / built-in PowerShell cmdlets) —
+Keep the scripts dependency-free (curl + tar / built-in PowerShell cmdlets).
 that is why they run anywhere with zero setup cost.

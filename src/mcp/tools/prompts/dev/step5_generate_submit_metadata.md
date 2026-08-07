@@ -1,4 +1,4 @@
-## Step 5 — Generate and Submit Metadata
+## Step 5: Generate and Submit Metadata
 
 Generate accurate metadata for every file created or modified during the
 current request, then submit it to the engine.
@@ -46,7 +46,7 @@ metadata for it:
 - **`purpose`**: Describe what the manifest declares.
 - **`summary`**: List the primary dependency categories.
 - **`features`**: Include **every** dependency, package, and plugin name
-  declared in the manifest — not just the ones added or changed in this
+  declared in the manifest, not just the ones added or changed in this
   request. Use the package name only, never version numbers.
 - **`tags`**: Include the ecosystem and language.
 
@@ -113,7 +113,7 @@ existing temporary JSON file for the same source path.
 ### Import Process
 
 1. Generate all metadata JSON files into `.mercury-cortex/temp/`.
-2. Validate — confirm every JSON file maps to a source path that is not
+2. Validate: confirm every JSON file maps to a source path that is not
    `.mcignore`-d. The source file may not exist on disk; the staged metadata
    is still indexed.
 3. If no metadata files were staged, skip the import.
@@ -128,9 +128,9 @@ to track freshness yourself.
 
 Wait for the `metadata/import` response and verify the result. The response is
 a `results` array with one entry per staged JSON file, each carrying:
-- `path` — the source file the metadata was generated for
-- `success` — whether the import succeeded
-- `error` — the failure reason when `success` is `false`
+- `path`: the source file the metadata was generated for
+- `success`: whether the import succeeded
+- `error`: the failure reason when `success` is `false`
 
 Compute the outcome by inspecting the array (e.g. errors count = entries with
 `success == false`). If you cannot reach the server or the MCP call returns an
@@ -152,14 +152,14 @@ On partial failure:
 - Include duplicate values in any array field
 - Express the same concept using different synonyms unless they
   represent distinct functionality
-- Import metadata in individual file calls — call `metadata/import`
+- Import metadata in individual file calls; call `metadata/import`
   once with all files
 
 ### Progress Report
 
 Upon successful completion of Step 5, emit a concise progress update before moving to Step 6:
 
-**Step 5 Complete — Generate & Submit Metadata**
+**Step 5 Complete: Generate & Submit Metadata**
 - **Staged:** `<count>` metadata files
 - **Import:** `<imported_count>` imported, `<failed_count>` failed
 

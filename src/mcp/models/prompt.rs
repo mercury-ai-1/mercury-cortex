@@ -20,7 +20,7 @@ pub struct Prompt {
     pub arguments: Option<Vec<PromptArgument>>,
 }
 
-/// The body of a prompt message — currently only `text` is supported.
+/// The body of a prompt message; currently only `text` is supported.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(tag = "type")]
 pub enum PromptContent {
@@ -35,7 +35,7 @@ pub struct PromptMessage {
     pub content: PromptContent,
 }
 
-/// The result of resolving a prompt template — a list of messages to send.
+/// The result of resolving a prompt template: a list of messages to send.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PromptResult {
     #[serde(skip_serializing_if = "Option::is_none")]

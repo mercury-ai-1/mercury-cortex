@@ -3,7 +3,7 @@
 //! Graceful-shutdown semantics tests.
 //!
 //! These assert SIGTERM-based graceful stop, PID-file cleanup on Drop, and a
-//! clean (success) exit — all of which are unix-only. Windows termination is a
+//! clean (success) exit; all of which are unix-only. Windows termination is a
 //! hard `TerminateProcess` with no graceful shutdown analogue, so the guarded
 //! assertions cannot hold there.
 
@@ -88,7 +88,7 @@ async fn shutdown_timeout_over_600_clamps_with_warn() -> anyhow::Result<()> {
     );
 
     // SIGTERM (not child.kill(), which is SIGKILL) to exercise the graceful
-    // shutdown path — mirrors core's runtime_signal_test.
+    // shutdown path; mirrors core's runtime_signal_test.
     let status = Command::new("kill")
         .args(["-TERM", &pid.to_string()])
         .status()?;

@@ -16,7 +16,7 @@ pub const GRACE_PERIOD: Duration = Duration::from_secs(5);
 /// What happened when `stop` ran.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum StopOutcome {
-    /// PID file missing or process already gone — nothing to do.
+    /// PID file missing or process already gone; nothing to do.
     AlreadyStopped,
     /// PID file existed but pointed at a dead process; file removed.
     StalePidRemoved,
@@ -25,7 +25,7 @@ pub enum StopOutcome {
     Stopped,
     /// Graceful termination timed out; process was killed, PID file removed.
     ForceKilled,
-    /// PID alive but did not match the service identity — refused to touch it.
+    /// PID alive but did not match the service identity; refused to touch it.
     IdentityMismatch,
     /// Orchestration failed (I/O, wait, scan). Carries a message.
     Failed(String),
@@ -54,7 +54,7 @@ impl StopOutcome {
 /// Stop every live process matching `ident`, seeded by the service's PID file.
 ///
 /// Never terminates a process unless its command line matches
-/// `ident.command_pattern` — unrelated processes are always ignored.
+/// `ident.command_pattern`; unrelated processes are always ignored.
 pub async fn stop(ident: &ServiceIdentity<'_>, data_dir: &Path) -> Result<StopOutcome, Error> {
     let pidfile = PidFile::new(data_dir, ident.name);
     let self_pid = std::process::id();

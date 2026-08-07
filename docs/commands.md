@@ -19,7 +19,7 @@ These flags apply to every command:
 
 Initialize the Mercury Cortex environment.
 
-Creates the data directories, connects to the SurrealKV database, and applies any pending schema migrations. Safe to run repeatedly — every step is idempotent and applied migrations are tracked so nothing runs twice.
+Creates the data directories, connects to the SurrealKV database, and applies any pending schema migrations. Safe to run repeatedly, since every step is idempotent and applied migrations are tracked so nothing runs twice.
 
 On a fresh machine this fully initializes the environment; on later runs it verifies the existing setup.
 
@@ -33,7 +33,7 @@ mercury-cortex setup
 
 Apply pending database migrations.
 
-Applies schema migrations to an already-initialized environment without re-running the full setup flow. Errors if no database exists yet — run `mercury-cortex setup` first.
+Applies schema migrations to an already-initialized environment without re-running the full setup flow. Errors if no database exists yet; run `mercury-cortex setup` first.
 
 ```bash
 mercury-cortex migration

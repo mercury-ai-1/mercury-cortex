@@ -1,4 +1,4 @@
-## Step 4 — Metadata Generation and Import
+## Step 4: Metadata Generation and Import
 
 Generate high-quality AI-derived metadata that becomes the project index. The
 engine imports the staged metadata from `.mercury-cortex/temp/` via
@@ -14,12 +14,12 @@ The indexing pipeline must follow this strict order. Every step is mandatory:
 
 1. **Traverse** the project, applying `.mcignore` filtering first and
    exclusively. Ignored paths are completely outside the pipeline.
-2. **Identify** the files where metadata adds real search value — core
+2. **Identify** the files where metadata adds real search value: core
    modules, services, handlers, providers, schemas, models, and any file with
    reusable functionality.
 3. **Generate** metadata for each identified file.
 4. **Write** metadata JSON files into `.mercury-cortex/temp/`.
-5. **Import** — call `metadata/import` once. The engine reads every JSON file
+5. **Import**: call `metadata/import` once. The engine reads every JSON file
    in `.mercury-cortex/temp/`, applies `.mcignore`, and upserts the metadata
    into `file_data`.
 
@@ -43,19 +43,19 @@ An ignored path must never:
 
 The `.mcignore` file is the definitive exclusion list. Do not second-guess
 it. If a path matches `.mcignore`, skip it unconditionally. Do not check
-whether the file "looks important" or "might have reusable code" — it is
+whether the file "looks important" or "might have reusable code"; it is
 ignored, full stop.
 
 ### What the Index Contains
 
-The index is exactly the set of files you stage metadata for — there is no
+The index is exactly the set of files you stage metadata for; there is no
 separate full-file inventory. Metadata is the index:
 
 - Generate metadata for files where it adds genuine search value: core
   modules, services, feature implementations, and reusable utilities.
-- Staging metadata for a subset is acceptable — the index reflects exactly
+- Staging metadata for a subset is acceptable, since the index reflects exactly
   the files you staged. Prioritize the most reused and most important files.
-- Dependency manifests are **mandatory** (see below): they make the whole
+- Dependency manifests are **mandatory** (see below); they make the whole
   project searchable by dependency name.
 
 ### Never
@@ -98,8 +98,8 @@ analysis, build a structured inventory of all direct dependencies, plugins,
 and packages declared by the project.
 
 For each dependency:
-- Record its **name** (package name only — never include version numbers).
-- Determine its **primary functional category** — the role it plays in the
+- Record its **name** (package name only; never include version numbers).
+- Determine its **primary functional category**; this is the role it plays in the
   project. Use one or more of the following, or coin a clear equivalent:
   `state-management`, `networking`, `database`, `auth`, `ui`, `serialization`,
   `testing`, `build-tool`, `logging`, `routing`, `validation`, `file-storage`,
@@ -116,7 +116,7 @@ metadata for each source file:
   it**. Do not propagate a dependency tag across all files in a module just
   because one file uses it.
 - Do not include version numbers anywhere in metadata. Version information
-  is always available in the dependency manifest — storing it in metadata
+  is always available in the dependency manifest; storing it in metadata
   would make searches noisy as versions change.
 
 ### Index Dependency Manifests
@@ -131,7 +131,7 @@ guidance:
 - **`summary`**: List the primary dependency categories (e.g., "Web
   framework, serialization, async runtime, and database access").
 - **`features`**: Include **every** dependency, package, and plugin name
-  declared in the manifest. Use the package name only — never include
+  declared in the manifest. Use the package name only; never include
   version numbers. This makes the manifest searchable by dependency name
   across all projects (e.g., searching "serde" finds every project that
   declares it).
@@ -152,7 +152,7 @@ Example metadata for a `Cargo.toml`:
 ```
 
 Lock files (`Cargo.lock`, `package-lock.json`, `pubspec.lock`, `yarn.lock`,
-`poetry.lock`, `go.sum`) must **not** be indexed — they are
+`poetry.lock`, `go.sum`) must **not** be indexed; they are
 machine-generated and change on every dependency update.
 
 ### How to Analyze a File
@@ -240,10 +240,10 @@ are expected, no database-managed fields included.
 2. Analyze each candidate and generate its metadata.
 3. Write the metadata JSON files into `.mercury-cortex/temp/`, preserving the
    project's relative directory structure.
-4. **Import** — call `metadata/import` once. The engine reads every JSON file in
+4. **Import**: call `metadata/import` once. The engine reads every JSON file in
    `.mercury-cortex/temp/`, applies `.mcignore`, upserts the metadata into
    `file_data`, and removes the staged files after a successful import. The
-   staged JSON files are the source of the index — a file is indexed if and only
+   staged JSON files are the source of the index; a file is indexed if and only
    if you generated metadata for it (except paths matching `.mcignore`, which
    are skipped).
 5. Wait for the `metadata/import` response. It reports `indexed_files` (the
@@ -265,7 +265,7 @@ any new files that warrant it, stage them, and call `metadata/import` again.
 
 Upon successful completion of Step 4, emit a concise progress update before moving to Step 5:
 
-**Step 4 Complete — Metadata Generation & Import**
+**Step 4 Complete: Metadata Generation & Import**
 - **Indexed:** `<indexed_files>` files
 - **Imported:** `<count>` metadata files
 

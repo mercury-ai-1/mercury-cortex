@@ -1,4 +1,4 @@
-## Step 3 — .mcignore Refinement
+## Step 3: .mcignore Refinement
 
 Refine `.mcignore` to prevent non-source files from being indexed while
 preserving all user-defined rules.
@@ -15,7 +15,7 @@ this project *is*:
 - Build configuration files (`Makefile`, `CMakeLists.txt`, `build.gradle`,
   `webpack.config.js`, or similar) to understand how the project is compiled
   or packaged.
-- Target and platform declarations — what platforms or environments does this
+- Target and platform declarations, i.e. what platforms or environments does this
   project actually build for?
 
 This context is the foundation of every exclusion decision that follows.
@@ -26,34 +26,34 @@ Do not examine the directory tree until you have read these files.
 For each directory at the project root, reason about its class using the
 project context you just read:
 
-- **Source** — handwritten code that implements the project's functionality.
+- **Source**: handwritten code that implements the project's functionality.
   Must be indexed. Examples: `src/`, `lib/`, `app/`, `test/`.
-- **Generated** — output produced by a build tool, compiler, or code
+- **Generated**: output produced by a build tool, compiler, or code
   generator. Can always be reconstructed. Must be ignored. Examples:
   `target/`, `build/`, `.dart_tool/`, `.next/`, `dist/`, `out/`,
   `.gradle/`, `__pycache__/`, `.mypy_cache/`.
-- **Dependencies** — third-party code fetched by a package manager. Not
+- **Dependencies**: third-party code fetched by a package manager. Not
   authored by this project. Must be ignored. Examples: `node_modules/`,
   `vendor/`, `.pub-cache/`, `Pods/`.
-- **Platform-specific** — directories that contain platform scaffolding or
-  native integration code. Requires reasoning — see below.
-- **IDE / OS metadata** — editor state or OS bookkeeping files. Must be
+- **Platform-specific**: directories that contain platform scaffolding or
+  native integration code. Requires reasoning; see below.
+- **IDE / OS metadata**: editor state or OS bookkeeping files. Must be
   ignored. Examples: `.idea/`, `.vscode/`, `.DS_Store`, `Thumbs.db`, `.git/`.
-- **Test artifacts** — coverage reports, test output directories, or
+- **Test artifacts**: coverage reports, test output directories, or
   fixtures generated at test runtime. Must be ignored.
 
 ### Reasoning About Platform-Specific Directories
 
 Platform directories (e.g., `android/`, `ios/`, `windows/`, `web/`,
-`linux/`, `macos/`) require a judgment call — they may contain either
+`linux/`, `macos/`) require a judgment call: they may contain either
 generated scaffolding or custom application logic.
 
 **Guiding question**: *If this directory were deleted and the project's
 build tool was run, would this directory be fully regenerated without
 losing any custom work?*
 
-- If **yes** — the directory is generated scaffolding. Ignore it.
-- If **no** — the directory contains custom application code or native
+- If **yes**: the directory is generated scaffolding. Ignore it.
+- If **no**: the directory contains custom application code or native
   integration logic that cannot be regenerated. Do not ignore it.
 
 **How to answer the question:**
@@ -61,11 +61,11 @@ losing any custom work?*
 Use the project context you already read. Do not scan every file. Use the
 project's language, framework, declared dependencies, and build configuration
 to reason about what is likely inside each platform directory. Read only the
-files that are necessary to resolve genuine ambiguity — for example, a native
-build configuration or plugin registration file — and only when the project
+files that are necessary to resolve genuine ambiguity. For example, a native
+build configuration or plugin registration file, and only when the project
 context alone is not sufficient to make a confident decision.
 
-Some examples of the reasoning process (not an exhaustive list — apply the
+Some examples of the reasoning process (not an exhaustive list; apply the
 same logic to any ecosystem):
 
 - A Flutter project with no dependencies that have native bindings (no
@@ -84,7 +84,7 @@ same logic to any ecosystem):
   Ignore it.
 
 The goal is confident, evidence-based decisions using the project's actual
-context — not exhaustive file scanning or framework-specific pattern lists.
+context, not exhaustive file scanning or framework-specific pattern lists.
 
 ### Exclusion Guarantee
 
@@ -97,7 +97,7 @@ indexing pipeline. Any path matching `.mcignore` will:
 - Not produce a JSON file in `.mercury-cortex/temp/`
 - Not be imported into Mercury Cortex
 
-This is a hard exclusion — not a suggestion. If a file should still be
+This is a hard exclusion, not a suggestion. If a file should still be
 indexed despite matching a pattern, it must not be in `.mcignore`.
 
 ### Pattern Syntax
@@ -141,7 +141,7 @@ are found, skip the API call entirely.
 
 Upon successful completion of Step 3, emit a concise progress update before moving to Step 4:
 
-**Step 3 Complete — .mcignore Refinement**
+**Step 3 Complete: .mcignore Refinement**
 - **Patterns Added:** `<count or "0 (no new patterns)">`
 
 *Proceeding to Step 4 (Metadata Generation & Import)…*

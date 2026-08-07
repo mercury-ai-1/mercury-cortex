@@ -1,4 +1,4 @@
-//! MCP handler for `file/metadata` — get indexed metadata for a file.
+//! MCP handler for `file/metadata`: get indexed metadata for a file.
 
 use crate::mcp::context::McpContext;
 use crate::mcp::models::FileMetadataParams;

@@ -30,7 +30,7 @@ pub enum McpCommand {
 
 /// Start the MCP server over stdio.
 ///
-/// Spawns its own Runtime — only one such process may run at a time because
+/// Spawns its own Runtime; only one such process may run at a time because
 /// `SurrealKV` uses exclusive file locking.  The MCP server starts
 /// *immediately* so the initialize handshake, `ping`, and `tools/list`
 /// respond instantly.  Tool calls block on [`LazyContext::get`] until the

@@ -1,4 +1,4 @@
-//! MCP handler for `workflow/step` — get instructions for a specific step.
+//! MCP handler for `workflow/step`: get instructions for a specific step.
 
 use serde_json::Value;
 use tracing::info;

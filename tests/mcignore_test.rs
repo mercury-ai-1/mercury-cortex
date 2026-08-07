@@ -56,7 +56,7 @@ fn wildcard_pattern_non_match_terminates() {
             );
         }
         Err(_) => {
-            panic!("is_ignored did not terminate within 2s — infinite loop in wildcard_match")
+            panic!("is_ignored did not terminate within 2s: infinite loop in wildcard_match")
         }
     }
 }
@@ -84,7 +84,7 @@ fn wildcard_pattern_match_still_works() {
             );
         }
         Err(_) => {
-            panic!("is_ignored did not terminate within 2s — infinite loop in wildcard_match")
+            panic!("is_ignored did not terminate within 2s: infinite loop in wildcard_match")
         }
     }
 }

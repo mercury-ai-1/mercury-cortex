@@ -1,4 +1,4 @@
-## Step 3 — Decide: Reuse, Extend, or Create
+## Step 3: Decide: Reuse, Extend, or Create
 
 Evaluate the search results and determine the most appropriate
 implementation strategy. Prefer reusing existing code whenever it
@@ -9,32 +9,32 @@ produces a concrete implementation plan for Step 4.
 
 Assess each search result against these criteria:
 
-- **Functional similarity** — how closely does it match the request?
-- **Code quality** — is it well-structured, tested, and maintained?
-- **Compatibility** — does it fit the current request's requirements?
-- **Language and framework** — does it use the same stack?
-- **Architecture consistency** — does it follow the project's patterns?
-- **Reusability** — can it be used directly or with minimal changes?
-- **Maintainability** — will reusing it reduce or increase tech debt?
+- **Functional similarity**: how closely does it match the request?
+- **Code quality**: is it well-structured, tested, and maintained?
+- **Compatibility**: does it fit the current request's requirements?
+- **Language and framework**: does it use the same stack?
+- **Architecture consistency**: does it follow the project's patterns?
+- **Reusability**: can it be used directly or with minimal changes?
+- **Maintainability**: will reusing it reduce or increase tech debt?
 
 ### 2. Understand Each Decision
 
-**Reuse** — an existing implementation matches the request and can be
+**Reuse:** an existing implementation matches the request and can be
 adapted. Reuse means understanding the implementation's full context:
 its dependencies, related files, connected components, API surface, and
 surrounding project patterns. You take that understanding and integrate
 the relevant parts into the current solution. Reuse is not copying a
-file — it is applying the same design, patterns, or logic in the right
+file; it is applying the same design, patterns, or logic in the right
 places.
 
-**Extend** — an existing implementation provides a strong foundation but
+**Extend:** an existing implementation provides a strong foundation but
 needs additional functionality. Modify or augment without duplicating
 existing logic.
 
-**Compose** — combine multiple reusable implementations into a new
+**Compose:** combine multiple reusable implementations into a new
 solution. Prefer composition over duplication.
 
-**Create** — no suitable implementation exists. Implement a new solution
+**Create:** no suitable implementation exists. Implement a new solution
 that follows the project's architecture and coding standards.
 
 | Situation | Action |
@@ -77,8 +77,8 @@ If several implementations were found, compare them before choosing:
 
 **Understand the full context before reusing.** Reuse is not copying a
 file. Read the implementation, its dependencies, and related files.
-Understand how it connects to the rest of the project — data flow,
-interfaces, error handling, configuration — before deciding to reuse it.
+Understand how it connects to the rest of the project: data flow,
+interfaces, error handling, and configuration, before deciding to reuse it.
 
 **Prefer reuse, not blind reuse.** Reuse code only when it improves
 consistency and maintainability. Do not force reuse if it results in
@@ -94,7 +94,7 @@ always more important than maximizing reuse.
 ### Never
 
 - **Never** reuse code without reading it and understanding its context
-- **Never** copy an entire file as reuse — understand what it does and
+- **Never** copy an entire file as reuse; understand what it does and
   apply the relevant parts
 - **Never** duplicate existing functionality
 - **Never** choose the first search result without evaluation
@@ -117,7 +117,7 @@ This plan becomes the input for the implementation step.
 
 Upon successful completion of Step 3, emit a concise progress update before moving to Step 4:
 
-**Step 3 Complete — Strategy & Decision**
+**Step 3 Complete: Strategy & Decision**
 - **Strategy:** Reusing `<N>`, Extending `<N>`, Creating `<N>`
 
 *Proceeding to Step 4 (Implement Changes)…*

@@ -73,7 +73,7 @@ impl RuntimeClient {
         }
     }
 
-    /// Low-level RPC call (private) — obtains a connection from the pool,
+    /// Low-level RPC call (private), which obtains a connection from the pool,
     /// performs the RPC, and returns the connection on success.
     async fn call_raw(&self, method: &str, params: Value) -> Result<Value, ClientError> {
         let mut pooled = get_connection(&self.pool).await?;

@@ -9,7 +9,7 @@ pub(crate) const PROTOCOL_VERSION: u32 = 1;
 /// Error code used when a peer speaks an unsupported protocol version.
 pub(crate) const CODE_INVALID_VERSION: &str = "INVALID_VERSION";
 
-/// IPC request — transport-agnostic, one per connection.
+/// IPC request: transport-agnostic, one per connection.
 #[derive(Debug, Serialize, Deserialize)]
 pub(crate) struct IpcRequest<T = Value> {
     pub version: u32,

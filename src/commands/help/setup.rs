@@ -17,7 +17,7 @@ pub const MIGRATION_LONG: &str = "\
 Applies schema migrations to an already-initialized environment without
 re-running the full setup flow.
 
-Errors if no database exists yet — run `mercury-cortex setup` first.";
+Errors if no database exists yet; run `mercury-cortex setup` first.";
 pub const MIGRATION_EXAMPLES: &str = "\
 Examples:
   mercury-cortex migration";

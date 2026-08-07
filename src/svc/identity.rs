@@ -6,7 +6,7 @@ use super::Error;
 
 /// A service's identity: how to recognize its processes in the process table.
 ///
-/// Generic and data-driven — a service is *described*, never coded for, so
+/// Generic and data-driven; a service is *described*, never coded for, so
 /// `mcp`, `daemon`, `api`, … all reuse this unchanged.
 #[derive(Debug, Clone, Copy)]
 pub struct ServiceIdentity<'a> {

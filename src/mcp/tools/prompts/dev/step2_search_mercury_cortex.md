@@ -1,4 +1,4 @@
-## Step 2 — Search Mercury Cortex
+## Step 2: Search Mercury Cortex
 
 Search Mercury Cortex to find existing implementations before writing new
 code. Follow a progressive search strategy and stop once you've exhausted
@@ -34,14 +34,14 @@ Search in layers. Start narrow and broaden only when the current layer
 yields no usable results. You MUST evaluate all three layers sequentially
 before concluding that 0 candidates exist.
 
-**Layer 1 — Current project.** Start here. Search the active project for
+**Layer 1: Current project.** Start here. Search the active project for
 existing implementations using specific technical terms. This is where
 project-specific patterns live.
 
-**Layer 2 — Same language/framework.** If Layer 1 produces nothing
+**Layer 2: Same language/framework.** If Layer 1 produces nothing
 usable, broaden to all projects with the same language and framework.
 
-**Layer 3 — All projects (Global fallback).** If Layer 2 produces 0 results,
+**Layer 3: All projects (Global fallback).** If Layer 2 produces 0 results,
 DO NOT stop. Immediately execute Layer 3 by setting `search_all_projects: true`
 in your search query. This searches across every indexed project in the
 knowledge base regardless of framework or language, surfacing generic UI
@@ -80,7 +80,7 @@ to the current implementation. Each search result includes `project_root`
 (absolute path to the source project) and `path` (relative file path).
 Read source code from disk at `<project_root>/<path>`.
 
-Do not read every returned file — focus on the few most relevant results
+Do not read every returned file; focus on the few most relevant results
 to avoid unnecessary context usage.
 
 ### 8. Synthesize Findings
@@ -97,15 +97,15 @@ Assemble what you've learned before moving to Step 3:
 - **Never** skip reading promising files when the metadata provides
   insufficient detail
 - **Never** generate new implementations before evaluating reusable code
-- **Never** search beyond the defined progression — if all three layers
+- **Never** search beyond the defined progression; if all three layers
   produce nothing, move to Step 3
-- **Never** skip Step 3 — always evaluate candidates before implementing
+- **Never** skip Step 3; always evaluate candidates before implementing
 
 ### Progress Report
 
 Upon successful completion of Step 2, emit a concise progress update before moving to Step 3:
 
-**Step 2 Complete — Search Mercury Cortex**
+**Step 2 Complete: Search Mercury Cortex**
 - **Layers Used:** `<Layer 1 / Layer 2 / Layer 3>`
 - **Candidates Found:** `<count>` relevant files
 
