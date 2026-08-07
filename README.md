@@ -18,9 +18,20 @@ It works with any MCP-compatible AI assistant, including Claude Code, OpenCode, 
 
 AI coding assistants are powerful, but they lack persistent memory. Every new conversation starts from zero. They do not remember your project's architecture, past decisions, or codebase patterns. This forces you to repeatedly re-explain context, losing time and breaking flow.
 
-Mercury Cortex fills this gap. Your AI describes what it builds, imports that metadata into a structured knowledge graph, and serves that context to any MCP-compatible AI assistant. When you return to a project after weeks, your AI partner remembers everything: file relationships, code patterns, and project history.
+Mercury Cortex gives your AI a persistent memory. You register a project once, and the AI describes what it builds, imports that metadata into a structured knowledge graph, and serves that context to any MCP-compatible assistant. When you return to a project after weeks, your AI partner remembers everything: file relationships, code patterns, and project history.
 
-The engine runs locally on your machine. Your code never leaves your device, and the knowledge graph is built from your actual project files, not a cloud service. Connect it once, and every AI tool you use gains the same persistent project understanding.
+### Cross-project knowledge and code reuse
+
+The knowledge graph is not confined to a single repository. Every project you register contributes its metadata to one local knowledge graph, and your AI can search across all of them at once. Before writing any code, it queries every indexed project, not just the one you are currently working in, and surfaces existing implementations with their source location, purpose, features, and API surface.
+
+This makes reuse a first-class capability rather than an afterthought:
+
+- Start a feature in a brand-new repository, and your AI already knows how you solved the same problem in a previous project.
+- Pull battle-tested patterns, utilities, components, and reference implementations out of any codebase you have indexed, instead of rewriting them from scratch.
+- Search by what the code does, using technical terms, feature tags, and exported functions, across your entire workspace.
+- The results point back to the original project and file, so your AI can read the full source before adapting it to the current codebase.
+
+The engine runs locally on your machine. Your code never leaves your device, and the knowledge graph is built from your actual project files, not a cloud service. Connect it once, and every AI tool you use gains the same cross-project understanding.
 
 [Know more →](#features--vision)
 
@@ -314,7 +325,7 @@ Mercury Cortex is designed to evolve from a personal AI knowledge engine into an
 - **Multi-agent collaboration.** Multiple AI agents work together on shared tasks, coordinating through the knowledge graph to avoid conflicts and duplication.
 - **AI-to-AI communication.** AI assistants in different projects or sessions discover and reference each other's work through the knowledge graph.
 - **Knowledge ownership discovery.** Automatically identify who wrote what, who maintains which modules, and where expertise lives in the organization.
-- **Cross-project knowledge graph.** A unified graph connecting files, modules, and patterns across all registered projects, enabling reuse at scale.
+- **Cross-project knowledge at scale.** The unified graph already connects files, modules, and patterns across all registered projects; this scales as more projects and teams join, extending reuse beyond a single developer.
 - **Context sharing between AI agents.** AI agents pass context to each other through the knowledge graph, maintaining continuity across sessions and tools.
 - **Intelligent code ownership detection.** Automatically detect code ownership, responsibility boundaries, and dependency relationships across the codebase.
 - **Team knowledge network.** A network of project knowledge graphs that surfaces relevant patterns, decisions, and conventions across the entire team.
