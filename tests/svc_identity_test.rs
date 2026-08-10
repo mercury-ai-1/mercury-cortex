@@ -1,6 +1,7 @@
 #![cfg(unix)]
 
 use std::process::Command;
+use std::time::{Duration, Instant};
 
 use mercury_cortex::svc::{ServiceIdentity, verify_process};
 
@@ -12,6 +13,25 @@ fn spawn_sleep() -> std::process::Child {
         .expect("spawn sleep")
 }
 
+/// Poll `verify_process` until it matches or `timeout` elapses.
+///
+/// A freshly spawned child may still be between `fork()` and `exec()` when
+/// probed; on Linux, `/proc/PID/cmdline` then shows the parent's argv rather
+/// than the pattern, so a single immediate probe can race CI. Wait for the
+/// child to be verified instead of assuming exec already happened.
+fn wait_until_verified(pid: u32, ident: &ServiceIdentity<'_>, timeout: Duration) -> bool {
+    let deadline = Instant::now() + timeout;
+    loop {
+        if verify_process(pid, ident).unwrap_or(false) {
+            return true;
+        }
+        if Instant::now() >= deadline {
+            return false;
+        }
+        std::thread::sleep(Duration::from_millis(10));
+    }
+}
+
 #[test]
 fn verify_process_matches_known_pattern() {
     let mut child = spawn_sleep();
@@ -19,7 +39,10 @@ fn verify_process_matches_known_pattern() {
         name: "test",
         command_pattern: "sleep",
     };
-    assert!(verify_process(child.id(), &ident).unwrap());
+    assert!(
+        wait_until_verified(child.id(), &ident, Duration::from_secs(5)),
+        "child command line never matched 'sleep' within 5s"
+    );
     let _ = child.kill();
     let _ = child.wait();
 }
