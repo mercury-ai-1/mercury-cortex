@@ -1,11 +1,13 @@
 #![cfg(unix)]
 
 use std::process::Command;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use tempfile::TempDir;
 
-use mercury_cortex::svc::{PidFile, ServiceIdentity, StopOutcome, is_alive, stop, wait_for_exit};
+use mercury_cortex::svc::{
+    PidFile, ServiceIdentity, StopOutcome, is_alive, stop, verify_process, wait_for_exit,
+};
 
 const GRACE: Duration = Duration::from_secs(5);
 
@@ -16,6 +18,29 @@ fn spawn_marked(marker: &str) -> std::process::Child {
         .arg(format!("exec -a {marker} sleep 60"))
         .spawn()
         .expect("spawn marked sleep")
+}
+
+/// Wait until `verify_process` matches `pid` against `marker`.
+///
+/// A freshly spawned child may still be between `fork()` and `exec()` when
+/// probed; on Linux, `/proc/PID/cmdline` then shows the parent's argv rather
+/// than the marker, so a single immediate probe can race CI. Wait for the
+/// child's command line to contain the marker before exercising `stop`.
+fn wait_for_marker(pid: u32, marker: &str, timeout: Duration) -> bool {
+    let ident = ServiceIdentity {
+        name: "test",
+        command_pattern: marker,
+    };
+    let deadline = Instant::now() + timeout;
+    loop {
+        if verify_process(pid, &ident).unwrap_or(false) {
+            return true;
+        }
+        if Instant::now() >= deadline {
+            return false;
+        }
+        std::thread::sleep(Duration::from_millis(10));
+    }
 }
 
 fn ident(marker: &str) -> ServiceIdentity<'_> {
@@ -79,6 +104,10 @@ fn stop_terminates_matching_process() {
     let tmp = TempDir::new().unwrap();
     let mut child = spawn_marked("mctest-one");
     let pid = child.id();
+    assert!(
+        wait_for_marker(pid, "mctest-one", Duration::from_secs(5)),
+        "child command line never contained 'mctest-one' within 5s"
+    );
     let pf = PidFile::new(tmp.path(), "test");
     pf.write(pid).unwrap();
     let outcome = tokio::runtime::Runtime::new()
@@ -148,6 +177,14 @@ fn stop_scans_for_additional_processes() {
     // Unique markers so this test's scan never touches other tests' processes.
     let mut a = spawn_marked("mctest-scan-a");
     let mut b = spawn_marked("mctest-scan-b");
+    assert!(
+        wait_for_marker(a.id(), "mctest-scan-a", Duration::from_secs(5)),
+        "child A command line never contained 'mctest-scan-a' within 5s"
+    );
+    assert!(
+        wait_for_marker(b.id(), "mctest-scan-b", Duration::from_secs(5)),
+        "child B command line never contained 'mctest-scan-b' within 5s"
+    );
     let outcome = tokio::runtime::Runtime::new()
         .unwrap()
         .block_on(stop(&ident("mctest-scan"), tmp.path()))
