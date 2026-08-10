@@ -358,3 +358,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, workflow, and guid
 ## License
 
 Apache-2.0. Copyright 2026 Mercury Cortex Contributors. See [LICENSE](LICENSE) for details.
+
+
+<!-- mcp-name: io.github.mercury-ai-1/mercury-cortex -->
